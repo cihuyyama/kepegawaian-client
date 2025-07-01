@@ -78,5 +78,15 @@ export interface JabatanStrukturalRow {
   dokumenSK?: string;           // URL atau path file SK
 }
 
+// types.ts
+export interface PenempatanRow {
+  unitKerja: string;
+  noSK: string;
+  tglSK: string;       // e.g. 'DD MMMM YYYY'
+  tmt: string;         // tanggal mulai tugas
+  dokumenSK?: string;  // URL atau path file SK
+}
+
+
 
 

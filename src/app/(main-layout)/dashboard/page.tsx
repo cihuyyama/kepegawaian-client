@@ -4,7 +4,7 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DashboardBreadcrumb } from '@/components/dashboard/dashboard-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
 
 export default function DashboardPage() {
   const pegawai = {
@@ -153,6 +153,24 @@ export default function DashboardPage() {
     },
   ];
 
+  const dataPenempatan: PenempatanRow[] = [
+    {
+      unitKerja: "Fakultas Teknik",
+      noSK: "001/SPT/2025",
+      tglSK: "01 Januari 2025",
+      tmt: "10 Januari 2025",
+      dokumenSK: "/dokumen/penempatan_001_SPT_2025.pdf",
+    },
+    {
+      unitKerja: "Program Studi Informatika",
+      noSK: "002/SPT/2024",
+      tglSK: "15 Maret 2024",
+      tmt: "01 April 2024",
+      dokumenSK: "/dokumen/penempatan_002_SPT_2024.pdf",
+    },
+  ];
+
+
 
   return (
     <ContentLayout title="Dashboard">
@@ -166,6 +184,7 @@ export default function DashboardPage() {
           dataJabatanFungsional={dataJabatanFungsional}
           dataInpasing={dataInpasing}
           dataJabatanStruktural={dataJabatanStruktural}
+          dataPenempatan={dataPenempatan}
         />
       </div>
     </ContentLayout>

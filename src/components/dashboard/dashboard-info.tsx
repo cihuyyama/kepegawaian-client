@@ -10,6 +10,7 @@ import type {
   JabatanFungsionalRow,
   JabatanStrukturalRow,
   KepangkatanRow,
+  PenempatanRow,
   RiwayatPendidikanRow,
 } from './types';
 
@@ -19,6 +20,7 @@ import { DashboardRiwayatPendidikanTable } from './tables/dashboard-riwayat-pend
 import { DashboardJabatanFungsionalTable } from './tables/dashboard-jabatan-fungsional-table';
 import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
 import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
+import { DashboardPenempatanTable } from './tables/dashbaord-penempatan-table';
 
 export function DashboardInfo({
   dataKepangkatan = [],
@@ -27,13 +29,15 @@ export function DashboardInfo({
   dataJabatanFungsional = [],
   dataInpasing = [],
   dataJabatanStruktural = [],
+  dataPenempatan = [],
 }: {
   dataKepangkatan?: KepangkatanRow[];
   dataAnggotaKeluarga?: AnggotaKeluargaRow[];
   dataRiwayatPendidikan?: RiwayatPendidikanRow[];
   dataJabatanFungsional?: JabatanFungsionalRow[];
   dataInpasing?: InpasingRow[];
-  dataJabatanStruktural?: JabatanStrukturalRow[]; // Ganti dengan tipe yang sesuai jika ada
+  dataJabatanStruktural?: JabatanStrukturalRow[];
+  dataPenempatan?: PenempatanRow[];
 }) {
   const [activeTab, setActiveTab] = useState<
     | 'kepangkatan'
@@ -42,6 +46,9 @@ export function DashboardInfo({
     | 'jabatanfungsional'
     | 'inpasing'
     | 'jabatanstruktural'
+    | 'pelatihan'
+    | 'penempatan'
+    | 'kendaraan'
   >('kepangkatan');
 
   return (
@@ -65,6 +72,9 @@ export function DashboardInfo({
             <option value="jabatanfungsional">Jabatan Fungsional</option>
             <option value="inpasing">Inpasing</option>
             <option value="jabatanstruktural">Jabatan Struktural</option>
+            <option value="pelatihan">Pelatihan</option>
+            <option value="penempatan">Penempatan</option>
+            <option value="kendaraan">Kendaraan</option>
           </select>
         </div>
 
@@ -77,7 +87,10 @@ export function DashboardInfo({
               | 'riwayatpendidikan'
               | 'jabatanfungsional'
               | 'inpasing'
-              | 'jabatanstruktural')
+              | 'jabatanstruktural'
+              | 'pelatihan'
+              | 'penempatan'
+              | 'kendaraan')
           }
           className="w-full"
         >
@@ -98,6 +111,15 @@ export function DashboardInfo({
             </TabsTrigger>
             <TabsTrigger value="jabatanstruktural">
               Jabatan Struktural
+            </TabsTrigger>
+            <TabsTrigger value="pelatihan">
+              Pelatihan
+            </TabsTrigger>
+            <TabsTrigger value="penempatan">
+              Penempatan
+            </TabsTrigger>
+            <TabsTrigger value="kendaraan">
+              Kendaraan
             </TabsTrigger>
           </TabsList>
 
@@ -126,6 +148,11 @@ export function DashboardInfo({
           <TabsContent value="jabatanstruktural" className="pt-4">
             <DashboardJabatanStrukturalTable data={dataJabatanStruktural} />
           </TabsContent>
+
+          <TabsContent value="penempatan" className="pt-4">
+            <DashboardPenempatanTable data={dataPenempatan} />
+          </TabsContent>
+
         </Tabs>
       </CardContent>
     </Card>
