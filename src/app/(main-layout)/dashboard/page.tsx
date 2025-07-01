@@ -4,7 +4,7 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DashboardBreadcrumb } from '@/components/dashboard/dashboard-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
 
 export default function DashboardPage() {
   const pegawai = {
@@ -116,21 +116,42 @@ export default function DashboardPage() {
   ];
 
   const dataInpasing: InpasingRow[] = [
-  {
-    kepangkatan: "Penata Muda (III/a)",
-    noSK: "123/INP/2023",
-    tglSK: "01 April 2023",
-    tmt: "15 April 2023",
-    dokumenSK: "/dokumen/inpasing_123_INP_2023.pdf",
-  },
-  {
-    kepangkatan: "Penata Muda Tingkat I (III/b)",
-    noSK: "456/INP/2024",
-    tglSK: "20 Februari 2024",
-    tmt: "05 Maret 2024",
-    dokumenSK: "/dokumen/inpasing_456_INP_2024.pdf",
-  },
-];
+    {
+      kepangkatan: "Penata Muda (III/a)",
+      noSK: "123/INP/2023",
+      tglSK: "01 April 2023",
+      tmt: "15 April 2023",
+      dokumenSK: "/dokumen/inpasing_123_INP_2023.pdf",
+    },
+    {
+      kepangkatan: "Penata Muda Tingkat I (III/b)",
+      noSK: "456/INP/2024",
+      tglSK: "20 Februari 2024",
+      tmt: "05 Maret 2024",
+      dokumenSK: "/dokumen/inpasing_456_INP_2024.pdf",
+    },
+  ];
+
+  const dataJabatanStruktural: JabatanStrukturalRow[] = [
+    {
+      jabatanStruktural: "Kepala Jurusan Teknik Informatika",
+      sk: "123/KPTS/2021",
+      periodeMenjabat: "15 Jan 2021 – 14 Jan 2024",
+      tunjanganTetap: "2.500.000",
+      tunjanganVariable: "500.000",
+      dokumenSK: "/dokumen/sk_kajur_123_KPTS_2021.pdf",
+    },
+    {
+      jabatanStruktural: "Wakil Dekan Fakultas Teknik",
+      sk: "456/KPTS/2020",
+      periodeMenjabat: "01 Feb 2020 – 31 Jan 2023",
+      skPemberhentian: "789/KPTS/2023",
+      tmtPemberhentian: "01 Feb 2023",
+      tunjanganTetap: "2.000.000",
+      tunjanganVariable: "400.000",
+      dokumenSK: "/dokumen/sk_wadek_456_KPTS_2020.pdf",
+    },
+  ];
 
 
   return (
@@ -144,6 +165,7 @@ export default function DashboardPage() {
           dataRiwayatPendidikan={dataRiwayatPendidikan}
           dataJabatanFungsional={dataJabatanFungsional}
           dataInpasing={dataInpasing}
+          dataJabatanStruktural={dataJabatanStruktural}
         />
       </div>
     </ContentLayout>

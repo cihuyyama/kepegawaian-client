@@ -54,8 +54,13 @@ export function DashboardJabatanFungsionalTable({
             <TableCell className="border px-4 py-2 text-center">{row.angkaKredit}</TableCell>
             <TableCell className="border px-4 py-2 text-center">
               {row.dokumenSK ? (
-                <a href={row.dokumenSK} download title="Unduh SK">
-                  <Download className="w-5 h-5 text-blue-500" />
+                <a
+                  href={row.dokumenSK}
+                  download
+                  title="Unduh Dokumen SK"
+                  className="inline-block hover:text-blue-600"
+                >
+                  <Download className="h-5 w-5 text-blue-500" />
                 </a>
               ) : (
                 '-'

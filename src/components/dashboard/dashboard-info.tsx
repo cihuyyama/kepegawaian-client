@@ -8,6 +8,7 @@ import type {
   AnggotaKeluargaRow,
   InpasingRow,
   JabatanFungsionalRow,
+  JabatanStrukturalRow,
   KepangkatanRow,
   RiwayatPendidikanRow,
 } from './types';
@@ -17,6 +18,7 @@ import { DashboardAnggotaKeluargaTable } from './tables/dashboard-anggota-keluar
 import { DashboardRiwayatPendidikanTable } from './tables/dashboard-riwayat-pendidikan-table';
 import { DashboardJabatanFungsionalTable } from './tables/dashboard-jabatan-fungsional-table';
 import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
+import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
 
 export function DashboardInfo({
   dataKepangkatan = [],
@@ -24,12 +26,14 @@ export function DashboardInfo({
   dataRiwayatPendidikan = [],
   dataJabatanFungsional = [],
   dataInpasing = [],
+  dataJabatanStruktural = [],
 }: {
   dataKepangkatan?: KepangkatanRow[];
   dataAnggotaKeluarga?: AnggotaKeluargaRow[];
   dataRiwayatPendidikan?: RiwayatPendidikanRow[];
   dataJabatanFungsional?: JabatanFungsionalRow[];
   dataInpasing?: InpasingRow[];
+  dataJabatanStruktural?: JabatanStrukturalRow[]; // Ganti dengan tipe yang sesuai jika ada
 }) {
   const [activeTab, setActiveTab] = useState<
     | 'kepangkatan'
@@ -37,6 +41,7 @@ export function DashboardInfo({
     | 'riwayatpendidikan'
     | 'jabatanfungsional'
     | 'inpasing'
+    | 'jabatanstruktural'
   >('kepangkatan');
 
   return (
@@ -59,6 +64,7 @@ export function DashboardInfo({
             <option value="riwayatpendidikan">Riwayat Pendidikan</option>
             <option value="jabatanfungsional">Jabatan Fungsional</option>
             <option value="inpasing">Inpasing</option>
+            <option value="jabatanstruktural">Jabatan Struktural</option>
           </select>
         </div>
 
@@ -70,12 +76,13 @@ export function DashboardInfo({
               | 'anggotakeluarga'
               | 'riwayatpendidikan'
               | 'jabatanfungsional'
-              | 'inpasing')
+              | 'inpasing'
+              | 'jabatanstruktural')
           }
           className="w-full"
         >
           {/* Tabs untuk desktop */}
-          <TabsList className="hidden md:grid grid-cols-5 gap-1 mb-4">
+          <TabsList className="hidden md:grid grid-cols-9 gap-1 mb-4">
             <TabsTrigger value="kepangkatan">Kepangkatan</TabsTrigger>
             <TabsTrigger value="anggotakeluarga">
               Anggota Keluarga
@@ -86,7 +93,12 @@ export function DashboardInfo({
             <TabsTrigger value="jabatanfungsional">
               Jabatan Fungsional
             </TabsTrigger>
-            <TabsTrigger value="inpasing">Inpasing</TabsTrigger>
+            <TabsTrigger value="inpasing">
+              Inpasing
+            </TabsTrigger>
+            <TabsTrigger value="jabatanstruktural">
+              Jabatan Struktural
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="kepangkatan" className="pt-4">
@@ -109,6 +121,10 @@ export function DashboardInfo({
 
           <TabsContent value="inpasing" className="pt-4">
             <DashboardInpasingTable data={dataInpasing} />
+          </TabsContent>
+
+          <TabsContent value="jabatanstruktural" className="pt-4">
+            <DashboardJabatanStrukturalTable data={dataJabatanStruktural} />
           </TabsContent>
         </Tabs>
       </CardContent>

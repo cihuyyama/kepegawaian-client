@@ -67,5 +67,16 @@ export interface InpasingRow {
   dokumenSK?: string; // URL atau path ke file SK
 }
 
+export interface JabatanStrukturalRow {
+  jabatanStruktural: string;
+  sk: string;
+  periodeMenjabat: string;      // misal '2021–2024'
+  skPemberhentian?: string;     // optional, jika sudah ada SK pemberhentian
+  tmtPemberhentian?: string;    // optional
+  tunjanganTetap: number | string;
+  tunjanganVariable: number | string;
+  dokumenSK?: string;           // URL atau path file SK
+}
+
 
 
