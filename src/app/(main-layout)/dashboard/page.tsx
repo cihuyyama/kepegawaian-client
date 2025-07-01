@@ -4,7 +4,7 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DashboardBreadcrumb } from '@/components/dashboard/dashboard-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
 
 export default function DashboardPage() {
   const pegawai = {
@@ -170,7 +170,22 @@ export default function DashboardPage() {
     },
   ];
 
-
+  const dataKendaraan: KendaraanRow[] = [
+  {
+    namaPemilik: "Budi Santoso",
+    noKendaraan: "B 1234 XYZ",
+    merek: "Toyota Avanza",
+    jenis: "Mobil",
+    dokumen: "/dokumen/ktp_kendaraan_budi.pdf",
+  },
+  {
+    namaPemilik: "Siti Aminah",
+    noKendaraan: "D 5678 ABC",
+    merek: "Honda Beat",
+    jenis: "Motor",
+    dokumen: "/dokumen/ktp_kendaraan_siti.pdf",
+  },
+];
 
   return (
     <ContentLayout title="Dashboard">
@@ -185,6 +200,7 @@ export default function DashboardPage() {
           dataInpasing={dataInpasing}
           dataJabatanStruktural={dataJabatanStruktural}
           dataPenempatan={dataPenempatan}
+          dataKendaraan={dataKendaraan}
         />
       </div>
     </ContentLayout>

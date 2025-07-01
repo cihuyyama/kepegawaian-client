@@ -9,6 +9,7 @@ import type {
   InpasingRow,
   JabatanFungsionalRow,
   JabatanStrukturalRow,
+  KendaraanRow,
   KepangkatanRow,
   PenempatanRow,
   RiwayatPendidikanRow,
@@ -21,6 +22,7 @@ import { DashboardJabatanFungsionalTable } from './tables/dashboard-jabatan-fung
 import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
 import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
 import { DashboardPenempatanTable } from './tables/dashbaord-penempatan-table';
+import { DashboardKendaraanTable } from './tables/dashboard-kendaraan-table';
 
 export function DashboardInfo({
   dataKepangkatan = [],
@@ -30,6 +32,7 @@ export function DashboardInfo({
   dataInpasing = [],
   dataJabatanStruktural = [],
   dataPenempatan = [],
+  dataKendaraan = [],
 }: {
   dataKepangkatan?: KepangkatanRow[];
   dataAnggotaKeluarga?: AnggotaKeluargaRow[];
@@ -38,6 +41,7 @@ export function DashboardInfo({
   dataInpasing?: InpasingRow[];
   dataJabatanStruktural?: JabatanStrukturalRow[];
   dataPenempatan?: PenempatanRow[];
+  dataKendaraan?: KendaraanRow[];
 }) {
   const [activeTab, setActiveTab] = useState<
     | 'kepangkatan'
@@ -151,6 +155,10 @@ export function DashboardInfo({
 
           <TabsContent value="penempatan" className="pt-4">
             <DashboardPenempatanTable data={dataPenempatan} />
+          </TabsContent>
+
+           <TabsContent value="kendaraan" className="pt-4">
+            <DashboardKendaraanTable data={dataKendaraan} />
           </TabsContent>
 
         </Tabs>
