@@ -2,9 +2,54 @@
 
 import Image from 'next/image';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Pegawai } from './types';
+import { Upload } from 'lucide-react';
+import type { Pegawai } from './types';
 
 export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
+  const info: { label: string; value?: string }[] = [
+    { label: 'NIP', value: pegawai.nip },
+    { label: 'Nama', value: `${pegawai.gelarDepan ?? ''} ${pegawai.nama} ${pegawai.gelarBelakang ?? ''}`.trim() },
+    { label: 'Jenis Kelamin', value: pegawai.jenisKelamin },
+    { label: 'Agama', value: pegawai.agama },
+    { label: 'Golongan Darah', value: pegawai.golonganDarah },
+    { label: 'Tempat, Tgl. Lahir', value: `${pegawai.tempatLahir}, ${pegawai.tanggalLahir}` },
+    { label: 'Alamat', value: pegawai.alamat },
+    { label: 'No. Handphone', value: pegawai.noHandphone },
+    { label: 'NBM', value: pegawai.nbm },
+    { label: 'NIDN', value: pegawai.nidn },
+    { label: 'NIDK', value: pegawai.nidk },
+    { label: 'NUPTK', value: pegawai.nuptk },
+    { label: 'ID Scholar', value: pegawai.idScholar },
+    { label: 'ID Scopus', value: pegawai.idScopus },
+    { label: 'IS Shinta', value: pegawai.isShinta },
+    { label: 'ID Garuda', value: pegawai.idGaruda },
+    { label: 'NPWP', value: pegawai.npwp },
+    { label: 'Email Pribadi', value: pegawai.emailPribadi },
+    { label: 'Email Universitas', value: pegawai.emailUniversitas },
+    { label: 'NIK Kependudukan', value: pegawai.nikKependudukan },
+    { label: 'Jabatan Struktural', value: pegawai.jabatanStruktural },
+    { label: 'Jabatan Fungsional', value: pegawai.jabatanFungsional },
+    { label: 'Dok. KTP', value: pegawai.dokKtp },
+    { label: 'Dok. NBM', value: pegawai.dokNbm },
+    { label: 'Dok. Passport', value: pegawai.dokPassport },
+    { label: 'Dok. BPJS Kesehatan', value: pegawai.dokBpjsKesehatan },
+    { label: 'Dok. BPJS Tenagakerja', value: pegawai.dokBpjsTenagakerja },
+    { label: 'Dok. Sertifikasi Dosen', value: pegawai.dokSertifikasiDosen },
+    { label: 'Dok. NIDN', value: pegawai.dokNidn },
+  ];
+
+  const fileNameFromUrl = (url: string) => {
+    try {
+      return decodeURIComponent(url.split('/').pop() || '');
+    } catch {
+      return url;
+    }
+  };
+
+  const half = Math.ceil(info.length / 2);
+  const leftItems = info.slice(0, half);
+  const rightItems = info.slice(half);
+
   return (
     <Card>
       <CardHeader>
@@ -27,33 +72,58 @@ export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
 
           {/* Info Pegawai */}
           <div className="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-            <div>
-              <span className="text-gray-500 font-medium">Nama:</span>
-              <p>{pegawai.nama}</p>
+            {/* Kolom kiri */}
+            <div className="space-y-4">
+              {leftItems.map(({ label, value }) => (
+                <div key={label}>
+                  <span className="text-gray-500 font-medium">{label}:</span>
+                  {label.startsWith('Dok.') ? (
+                    <p className="flex items-center space-x-1">
+                      <Upload className="w-4 h-4 text-gray-600" />
+                      {value ? (
+                        <a
+                          href={value}
+                          download
+                          className="underline text-blue-600 hover:text-blue-800"
+                        >
+                          {fileNameFromUrl(value)}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">Belum ada dokumen</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p>{value ?? '-'}</p>
+                  )}
+                </div>
+              ))}
             </div>
-            <div>
-              <span className="text-gray-500 font-medium">NIP:</span>
-              <p>{pegawai.nip}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 font-medium">Jabatan:</span>
-              <p>{pegawai.jabatan}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 font-medium">Golongan:</span>
-              <p>{pegawai.golongan}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 font-medium">Unit Kerja:</span>
-              <p>{pegawai.unit}</p>
-            </div>
-            <div>
-              <span className="text-gray-500 font-medium">Status:</span>
-              <p>{pegawai.status}</p>
-            </div>
-            <div className="sm:col-span-2">
-              <span className="text-gray-500 font-medium">Email:</span>
-              <p>{pegawai.email}</p>
+
+            {/* Kolom kanan */}
+            <div className="space-y-4">
+              {rightItems.map(({ label, value }) => (
+                <div key={label}>
+                  <span className="text-gray-500 font-medium">{label}:</span>
+                  {label.startsWith('Dok.') ? (
+                    <p className="flex items-center space-x-1">
+                      <Upload className="w-4 h-4 text-gray-600" />
+                      {value ? (
+                        <a
+                          href={value}
+                          download
+                          className="underline text-blue-600 hover:text-blue-800"
+                        >
+                          {fileNameFromUrl(value)}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">Belum ada dokumen</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p>{value ?? '-'}</p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

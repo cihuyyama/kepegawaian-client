@@ -1,13 +1,39 @@
 export interface Pegawai {
-  nama: string;
   nip: string;
-  jabatan: string;
-  golongan: string;
-  unit: string;
-  status: string;
-  email: string;
+  nama: string;
+  gelarDepan?: string;
+  gelarBelakang?: string;
+  jenisKelamin: string;
+  agama: string;
+  golonganDarah?: string;
+  tempatLahir: string;
+  tanggalLahir: string;       // misal 'DD MMMM YYYY'
+  alamat: string;
+  noHandphone: string;
+  nbm?: string;
+  nidn?: string;
+  nidk?: string;
+  nuptk?: string;
+  idScholar?: string;
+  idScopus?: string;
+  isShinta?: string;
+  idGaruda?: string;
+  npwp?: string;
+  emailPribadi: string;
+  emailUniversitas: string;
+  nikKependudukan: string;
+  jabatanStruktural?: string;
+  jabatanFungsional?: string;
+  dokKtp?: string;
+  dokNbm?: string;
+  dokPassport?: string;
+  dokBpjsKesehatan?: string;
+  dokBpjsTenagakerja?: string;
+  dokSertifikasiDosen?: string;
+  dokNidn?: string;
   foto: string;
 }
+
 
 
 export interface KepangkatanRow {

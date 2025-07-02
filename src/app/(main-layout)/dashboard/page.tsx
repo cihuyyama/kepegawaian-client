@@ -4,20 +4,46 @@ import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DashboardBreadcrumb } from '@/components/dashboard/dashboard-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, Pegawai, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
 
 export default function DashboardPage() {
-  const pegawai = {
-    nama: "Budi Santoso",
+  const pegawai: Pegawai = {
     nip: "198706172019031002",
-    jabatan: "Dosen Tetap",
-    golongan: "III/B",
-    unit: "Fakultas Teknik",
-    status: "Aktif",
-    email: "budi@universitas.ac.id",
+    nama: "Budi Santoso",
+    gelarDepan: "Dr.",
+    gelarBelakang: "M.Sc.",
+    jenisKelamin: "Laki-laki",
+    agama: "Islam",
+    golonganDarah: "O",
+    tempatLahir: "Bandung",
+    tanggalLahir: "17 Juni 1987",
+    alamat: "Jl. Merdeka No. 10, Bandung",
+    noHandphone: "081234567890",
+    nbm: "NBM12345",
+    nidn: "NIDN67890",
+    nidk: "NIDK54321",
+    nuptk: "NUPTK11223",
+    idScholar: "scholar.budisantoso",
+    idScopus: "1234567890",
+    isShinta: "SHI-2025-0001",
+    idGaruda: "GAR-98765",
+    npwp: "12.345.678.9-012.345",
+    emailPribadi: "budi.pribadi@gmail.com",
+    emailUniversitas: "budi@universitas.ac.id",
+    nikKependudukan: "3174123456789012",
+    jabatanStruktural: "Kepala Prodi TI",
+    jabatanFungsional: "Lektor Kepala",
+    dokKtp: "/dokumen/ktp_budi.pdf",
+    dokNbm: "/dokumen/nbm_budi.pdf",
+    dokPassport: "/dokumen/passport_budi.pdf",
+    dokBpjsKesehatan: "/dokumen/bpjs_kesehatan_budi.pdf",
+    dokBpjsTenagakerja: "/dokumen/bpjs_tk_budi.pdf",
+    dokSertifikasiDosen: "/dokumen/sertifikasi_budi.pdf",
+    dokNidn: "",
     foto:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fA%3D%3D",
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0",
   };
+
 
   // Contoh data untuk tabel Kepangkatan
   const dataKepangkatan = [
@@ -171,21 +197,21 @@ export default function DashboardPage() {
   ];
 
   const dataKendaraan: KendaraanRow[] = [
-  {
-    namaPemilik: "Budi Santoso",
-    noKendaraan: "B 1234 XYZ",
-    merek: "Toyota Avanza",
-    jenis: "Mobil",
-    dokumen: "/dokumen/ktp_kendaraan_budi.pdf",
-  },
-  {
-    namaPemilik: "Siti Aminah",
-    noKendaraan: "D 5678 ABC",
-    merek: "Honda Beat",
-    jenis: "Motor",
-    dokumen: "/dokumen/ktp_kendaraan_siti.pdf",
-  },
-];
+    {
+      namaPemilik: "Budi Santoso",
+      noKendaraan: "B 1234 XYZ",
+      merek: "Toyota Avanza",
+      jenis: "Mobil",
+      dokumen: "/dokumen/ktp_kendaraan_budi.pdf",
+    },
+    {
+      namaPemilik: "Siti Aminah",
+      noKendaraan: "D 5678 ABC",
+      merek: "Honda Beat",
+      jenis: "Motor",
+      dokumen: "/dokumen/ktp_kendaraan_siti.pdf",
+    },
+  ];
 
   return (
     <ContentLayout title="Dashboard">
