@@ -20,7 +20,7 @@ type UserFormProps = {
     prodi: string;
     password: string;
     role: string;
-    unitKerjaId: string;
+    // unitKerjaId: string;
   }) => void;
   initialValues?: {
     name: string;
@@ -28,16 +28,16 @@ type UserFormProps = {
     prodi: string;
     password: string;
     role: string;
-    unitKerjaId: string;
+    // unitKerjaId: string;
   };
   cancelHref?: string;
   loading?: boolean;
 };
 
-type UnitKerja = {
-  id: string;
-  name: string;
-};
+// type UnitKerja = {
+//   id: string;
+//   name: string;
+// };
 
 export function UserForm({
   onSubmit,
@@ -47,32 +47,32 @@ export function UserForm({
     prodi: "",
     password: "",
     role: "admin",
-    unitKerjaId: "",
+    // unitKerjaId: "",
   },
   cancelHref = "/users",
   loading = false,
 }: UserFormProps) {
   const [form, setForm] = useState(initialValues);
   const [showPassword, setShowPassword] = useState(false);
-  const [unitKerjaList, setUnitKerjaList] = useState<UnitKerja[]>([]);
+  // const [unitKerjaList, setUnitKerjaList] = useState<UnitKerja[]>([]);
 
   const togglePasswordVisibility = () => {
     setShowPassword((prev) => !prev);
   };
 
-  useEffect(() => {
-    const fetchUnits = async () => {
-      try {
-        const res = await fetch(`${BASE_URL}/unit-kerja/`);
-        const data = await res.json();
-        setUnitKerjaList(data.data || []);
-      } catch (error) {
-        console.error("Gagal mengambil data unit kerja:", error);
-      }
-    };
+  // useEffect(() => {
+  //   const fetchUnits = async () => {
+  //     try {
+  //       const res = await fetch(`${BASE_URL}/unit-kerja/`);
+  //       const data = await res.json();
+  //       setUnitKerjaList(data.data || []);
+  //     } catch (error) {
+  //       console.error("Gagal mengambil data unit kerja:", error);
+  //     }
+  //   };
 
-    fetchUnits();
-  }, []);
+  //   fetchUnits();
+  // }, []);
 
   return (
     <form
@@ -107,7 +107,7 @@ export function UserForm({
           </SelectContent>
         </Select>
       </div>
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium mb-1">Unit Kerja</label>
         <Select
           value={form.unitKerjaId}
@@ -124,7 +124,7 @@ export function UserForm({
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </div> */}
       <div>
         <label className="block text-sm font-medium mb-1">Email</label>
         <Input
