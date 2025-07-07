@@ -1,3 +1,7 @@
+'use client';
+
+import { useEffect, useState } from "react";
+import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -10,14 +14,59 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
+import { toast } from "sonner";
+import { BASE_URL } from "@/constant/BaseURL";
 
-type User = {
-  name: string;
+type RawUser = {
+  id: string;
+  username: string;
   email: string;
-  prodi: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export function UserTable({ users }: { users: User[] }) {
+type User = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export function UserTable() {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get(`${BASE_URL}/users`, {
+        withCredentials: true,
+      });
+
+      const rawUsers: RawUser[] = res.data?.data || [];
+
+      const mappedUsers: User[] = rawUsers.map((user) => ({
+        id: user.id,
+        name: user.username,
+        email: user.email,
+        prodi: "-", // placeholder jika backend belum kirim
+      }));
+
+      setUsers(mappedUsers);
+    } catch (err) {
+      console.error(err);
+      toast.error("Gagal mengambil data pengguna.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return <p className="text-center">Loading data...</p>;
+  }
+
   return (
     <div className="mt-6">
       <Card>
@@ -38,22 +87,28 @@ export function UserTable({ users }: { users: User[] }) {
               <TableRow>
                 <TableHead>Name</TableHead>
                 <TableHead>Email</TableHead>
-                <TableHead>Prodi</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
+              {users.length === 0 ? (
                 <TableRow>
-                  <TableCell>{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>{user.prodi}</TableCell>
-                  <TableCell className="text-right space-x-2">
-                    <Button variant="outline" size="sm">Edit</Button>
-                    <Button variant="destructive" size="sm">Delete</Button>
+                  <TableCell colSpan={4} className="text-center">
+                    Tidak ada data.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell className="text-right space-x-2">
+                      <Button variant="outline" size="sm">Edit</Button>
+                      <Button variant="destructive" size="sm">Delete</Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </CardContent>

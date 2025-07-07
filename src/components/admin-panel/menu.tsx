@@ -15,6 +15,10 @@ import {
   TooltipContent,
   TooltipProvider
 } from "@/components/ui/tooltip";
+import { useRouter } from "next/navigation";
+import { BASE_URL } from "@/constant/BaseURL";
+import { toast } from "sonner";
+
 
 interface MenuProps {
   isOpen: boolean | undefined;
@@ -23,6 +27,29 @@ interface MenuProps {
 export function Menu({ isOpen }: MenuProps) {
   const pathname = usePathname();
   const menuList = getMenuList(pathname);
+  const router = useRouter(); // ini benar
+
+  const handleSignOut = async () => {
+    await toast.promise(
+      fetch(`${BASE_URL}/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      }).then(async (res) => {
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data?.message || "Logout gagal");
+        }
+
+        router.push("/login");
+      }),
+      {
+        loading: "Logging out...",
+        success: "Berhasil logout!",
+        error: (err) =>
+          err?.message || "Terjadi kesalahan saat logout. Silakan coba lagi.",
+      }
+    );
+  };
 
   return (
     <ScrollArea className="[&>div>div[style]]:!block">
@@ -61,7 +88,7 @@ export function Menu({ isOpen }: MenuProps) {
                               variant={
                                 (active === undefined &&
                                   pathname.startsWith(href)) ||
-                                active
+                                  active
                                   ? "secondary"
                                   : "ghost"
                               }
@@ -118,7 +145,7 @@ export function Menu({ isOpen }: MenuProps) {
               <Tooltip delayDuration={100}>
                 <TooltipTrigger asChild>
                   <Button
-                    onClick={() => {}}
+                    onClick={handleSignOut}
                     variant="outline"
                     className="w-full justify-center h-10 mt-5"
                   >

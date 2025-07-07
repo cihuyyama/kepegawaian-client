@@ -6,6 +6,8 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import { UserBreadcrumb } from "@/components/users/user-breadcrumb";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { UserForm } from "@/components/users/user-form";
+import { toast } from "sonner";
+import { BASE_URL } from "@/constant/BaseURL";
 
 export default function CreateUserPage() {
   const router = useRouter();
@@ -16,19 +18,35 @@ export default function CreateUserPage() {
     email: string;
     prodi: string;
     password: string;
+    role: string;
   }) => {
     try {
       setLoading(true);
-      const res = await fetch("https://api-kamu.com/users", {
+
+      const payload = {
+        username: formData.name,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role, // "admin" | "dosen" | "kaprodi"
+        // userinfo & unitKerjaId tidak dikirim karena opsional
+      };
+
+      const res = await fetch(`${BASE_URL}/auth/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Gagal menyimpan data");
-      router.push("/dashboard/users");
-    } catch (err) {
-      alert("Terjadi kesalahan saat menyimpan");
+      if (!res.ok) {
+        const errorData = await res.json();
+        throw new Error(errorData?.message || "Gagal menyimpan data");
+      }
+
+      toast.success("User berhasil ditambahkan");
+      router.push("/users");
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || "Terjadi kesalahan saat menyimpan");
     } finally {
       setLoading(false);
     }

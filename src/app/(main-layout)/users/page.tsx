@@ -8,7 +8,7 @@ export default function UsersPage() {
   return (
     <ContentLayout title="Users">
       <UserBreadcrumb />
-      <UserTable users={dummyUsers} />
+      <UserTable />
     </ContentLayout>
   );
 }
