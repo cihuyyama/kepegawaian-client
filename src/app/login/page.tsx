@@ -2,13 +2,13 @@
 import axios from 'axios';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, User } from 'lucide-react';
+import { BASE_URL } from '@/constant/BaseURL';
+import { Loader2, User } from 'lucide-react'
 import { useRouter } from 'next/navigation';
 import React, { ChangeEvent, FormEvent, useEffect, useState } from 'react'
 import { toast } from 'sonner';
 
-
-const AuthPage = () => {
+const LoginPage = () => {
     const router = useRouter();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -24,99 +24,99 @@ const AuthPage = () => {
         setPassword(e.target.value);
     };
 
-    // const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    //     e.preventDefault();
-    //     setLoading(true);
-    //     setError(null);
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        setLoading(true);
+        setError(null);
 
-    //     try {
-    //         toast.promise(
-    //             axios.post(
-    //                 `${process.env.NEXT_PUBLIC_DOMAIN}/auth/login`,
-    //                 {
-    //                     username: email,
-    //                     password: password
-    //                 },
-    //                 {
-    //                     withCredentials: true
-    //                 }
-    //             ),
-    //             {
-    //                 loading: 'Logging in...',
-    //                 success: async () => {
-    //                     // Tunggu backend nyimpan cookie di browser
-    //                     await new Promise((res) => setTimeout(res, 500));
+        try {
+            toast.promise(
+                axios.post(
+                    `${BASE_URL}/auth/login`,
+                    {
+                        email: email,
+                        password: password
+                    },
+                    {
+                        withCredentials: true
+                    }
+                ),
+                {
+                    loading: 'Logging in...',
+                    success: async () => {
+                        // Tunggu backend nyimpan cookie di browser
+                        await new Promise((res) => setTimeout(res, 500));
 
-    //                     try {
-    //                         const check = await axios.get(`${BASE_URL}/users`, {
-    //                             withCredentials: true,
-    //                         });
+                        try {
+                            const check = await axios.get(`${BASE_URL}/users`, {
+                                withCredentials: true,
+                            });
 
-    //                         if (check.status === 200) {
-    //                             router.push("/dashboard");
-    //                             return "Login berhasil!";
-    //                         } else {
-    //                             return "Login berhasil, tetapi gagal mengambil data pengguna.";
-    //                         }
-    //                     } catch (error) {
-    //                         console.error("Session check failed", error);
-    //                         return "Login berhasil, tapi tidak bisa memverifikasi sesi.";
-    //                     }
-    //                 },
-    //                 error: 'Error logging in'
-    //             })
-    //     } catch (error) {
-    //         setError(String(error));
-    //         console.error('outside ' + error);
-    //     } finally {
-    //         setTimeout(() => {
-    //             setLoading(false);
-    //         }, 1000);
-    //     }
-    // };
+                            if (check.status === 200) {
+                                router.push("/dashboard");
+                                return "Login berhasil!";
+                            } else {
+                                return "Login berhasil, tetapi gagal mengambil data pengguna.";
+                            }
+                        } catch (error) {
+                            console.error("Session check failed", error);
+                            return "Login berhasil, tapi tidak bisa memverifikasi sesi.";
+                        }
+                    },
+                    error: 'Error logging in'
+                })
+        } catch (error) {
+            setError(String(error));
+            console.error('outside ' + error);
+        } finally {
+            setTimeout(() => {
+                setLoading(false);
+            }, 1000);
+        }
+    };
 
 
     const togglePasswordVisibility = () => {
         setShowPassword(!showPassword);
     };
 
-    // useEffect(() => {
-    //     const fetchData = async () => {
-    //         try {
-    //             const response = await axios.get(`${BASE_URL}/users/access-token`, {
-    //                 withCredentials: true
-    //             });
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`${BASE_URL}/users/access-token`, {
+                    withCredentials: true
+                });
 
-    //             // Validasi bahwa data user benar-benar ada
-    //             if (response.status === 200 && response.data?.data?.id) {
-    //                 toast.info('You are already logged in');
-    //                 router.push('/dashboard');
-    //             }
-    //         } catch (error) {
-    //             // Silent fail, user belum login
-    //             console.log("Not logged in", error);
-    //         }
-    //     };
+                // Validasi bahwa data user benar-benar ada
+                if (response.status === 200 && response.data?.data?.id) {
+                    toast.info('You are already logged in');
+                    router.push('/dashboard');
+                }
+            } catch (error) {
+                // Silent fail, user belum login
+                console.log("Not logged in", error);
+            }
+        };
 
-    //     fetchData();
-    // }, [router]);
+        fetchData();
+    }, [router]);
 
     return (
         <section className="min-h-screen flex items-center justify-center bg-slate-50">
             <div className="bg-white flex rounded-2xl shadow-lg max-w-3xl p-5 items-center">
 
                 <div className="md:w-full px-8 md:px-16">
-                    <h2 className="font-bold text-3xl ">Login</h2>
+                    <h2 className="font-bold text-3xl text-black text-center">Login</h2>
 
-                    <p className="text-s mt-2">
+                    <p className="text-s mt-2 text-black text-center">
                         SIM Kepegawaian
                     </p>
 
-                    <form className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <Input
                             className="p-2 mt-4 rounded-xl border"
                             name="email"
-                            placeholder="Username"
+                            placeholder="Email"
                             value={email}
                             onChange={handleEmailChange}
                         />
@@ -159,4 +159,4 @@ const AuthPage = () => {
     )
 }
 
-export default AuthPage
+export default LoginPage
