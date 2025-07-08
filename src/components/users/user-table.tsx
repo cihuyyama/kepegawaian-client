@@ -35,10 +35,16 @@ type RawUser = {
   email: string;
 };
 
+type RawUserInfo = {
+  id: string;        // userinfoId
+  userId: string;
+};
+
 type User = {
-  id: string;
+  id: string;         // userId
   name: string;
   email: string;
+  userinfoId?: string; // optional
 };
 
 export function UserTable() {
@@ -47,16 +53,26 @@ export function UserTable() {
 
   const fetchUsers = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/users`, {
-        withCredentials: true,
+      const [usersRes, userinfosRes] = await Promise.all([
+        axios.get(`${BASE_URL}/users`, { withCredentials: true }),
+        axios.get(`${BASE_URL}/userinfo`, { withCredentials: true }),
+      ]);
+
+      const rawUsers: RawUser[] = usersRes.data?.data || [];
+      const rawUserInfos: RawUserInfo[] = userinfosRes.data?.data || [];
+
+      // Buat map dari userId → userinfoId
+      const userinfoMap = new Map<string, string>();
+      rawUserInfos.forEach(info => {
+        userinfoMap.set(info.userId, info.id);
       });
 
-      const rawUsers: RawUser[] = res.data?.data || [];
-
+      // Gabungkan user dengan userinfoId
       const mappedUsers: User[] = rawUsers.map((user) => ({
         id: user.id,
         name: user.username,
         email: user.email,
+        userinfoId: userinfoMap.get(user.id),
       }));
 
       setUsers(mappedUsers);
@@ -129,6 +145,16 @@ export function UserTable() {
                     <TableCell className="text-right space-x-2">
                       <Link href={`/users/edit/${user.id}`}>
                         <Button variant="outline" size="sm">Edit</Button>
+                      </Link>
+
+                      <Link href={`/users/userinfo/${user.userinfoId ?? ""}`}>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          disabled={!user.userinfoId}
+                        >
+                          Biodata
+                        </Button>
                       </Link>
 
                       <AlertDialog>
