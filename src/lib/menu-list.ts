@@ -27,34 +27,41 @@ type Group = {
   menus: Menu[];
 };
 
-export function getMenuList(pathname: string): Group[] {
-  return [
-    {
-      groupLabel: "",
-      menus: [
-        {
-          href: "/dashboard",
-          label: "Dashboard",
-          icon: LayoutGrid,
-          submenus: []
-        }
-      ]
-    },
+export function getMenuList(pathname: string, role: string): Group[] {
+  const dashboard: Group = {
+    groupLabel: "",
+    menus: [
+      {
+        href: "/dashboard",
+        label: "Dashboard",
+        icon: LayoutGrid,
+        submenus: [],
+      },
+    ],
+  };
 
-    {
-      groupLabel: "Admin",
-      menus: [
-        {
-          href: "/users",
-          label: "Users",
-          icon: Users
-        },
-        {
-          href: "/account",
-          label: "Account",
-          icon: Settings
-        }
-      ]
-    }
-  ];
+  const admin: Group = {
+    groupLabel: "Admin",
+    menus: [
+      {
+        href: "/users",
+        label: "Users",
+        icon: Users,
+      },
+      {
+        href: "/account",
+        label: "Account",
+        icon: Settings,
+      },
+    ],
+  };
+
+  switch (role) {
+    case "admin":
+      return [admin]; // ⛔ Dashboard TIDAK dikembalikan untuk admin
+    case "dosen":
+      return [dashboard]; // ✅ hanya dosen yang melihat Dashboard
+    default:
+      return [];
+  }
 }

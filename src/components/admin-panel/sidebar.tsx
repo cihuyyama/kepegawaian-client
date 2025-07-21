@@ -1,4 +1,6 @@
 "use client";
+
+import { useEffect, useState } from "react";
 import { Menu } from "@/components/admin-panel/menu";
 import { SidebarToggle } from "@/components/admin-panel/sidebar-toggle";
 import { Button } from "@/components/ui/button";
@@ -7,11 +9,49 @@ import { useStore } from "@/hooks/use-store";
 import { cn } from "@/lib/utils";
 import { PanelsTopLeft } from "lucide-react";
 import Link from "next/link";
+import { BASE_URL } from "@/constant/BaseURL";
 
 export function Sidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
-  if (!sidebar) return null;
+  const [role, setRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 🔁 Fetch role dari API saat component mount
+  useEffect(() => {
+    const fetchRole = async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/users/access-token`, {
+          method: "GET",
+          credentials: "include", // untuk kirim cookie jika pakai session
+        });
+
+        if (!res.ok) {
+          throw new Error("Gagal mengambil access token");
+        }
+
+        const data = await res.json();
+        const userRole = data?.data?.role;
+
+        if (userRole) {
+          setRole(userRole);
+        } else {
+          throw new Error("Role tidak ditemukan");
+        }
+      } catch (err) {
+        console.error("Error saat mengambil role:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRole();
+  }, []);
+
+  // ⛔ Hindari render saat role belum siap
+  if (!sidebar || loading || !role) return null;
+
   const { isOpen, toggleOpen, getOpenState, setIsHover, settings } = sidebar;
+
   return (
     <aside
       className={cn(
@@ -48,7 +88,8 @@ export function Sidebar() {
             </h1>
           </Link>
         </Button>
-        <Menu isOpen={getOpenState()} />
+        {/* ✅ Kirim role hasil dari API ke komponen Menu */}
+        <Menu isOpen={getOpenState()} role={role} />
       </div>
     </aside>
   );

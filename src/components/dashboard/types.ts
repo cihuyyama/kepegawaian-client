@@ -16,7 +16,7 @@ export interface Pegawai {
   nuptk?: string;
   idScholar?: string;
   idScopus?: string;
-  isShinta?: string;
+  idShinta?: string;
   idGaruda?: string;
   npwp?: string;
   emailPribadi: string;
@@ -31,7 +31,7 @@ export interface Pegawai {
   dokBpjsTenagakerja?: string;
   dokSertifikasiDosen?: string;
   dokNidn?: string;
-  foto: string;
+  imgUrl: string;
 }
 
 

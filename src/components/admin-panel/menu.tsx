@@ -22,12 +22,14 @@ import { toast } from "sonner";
 
 interface MenuProps {
   isOpen: boolean | undefined;
+  role: string; // Tambahkan role
 }
 
-export function Menu({ isOpen }: MenuProps) {
+export function Menu({ isOpen, role }: MenuProps) {
   const pathname = usePathname();
-  const menuList = getMenuList(pathname);
   const router = useRouter(); // ini benar
+  const menuList = getMenuList(pathname, role);
+
 
   const handleSignOut = async () => {
     await toast.promise(

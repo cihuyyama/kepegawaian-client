@@ -23,8 +23,10 @@ import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
 import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
 import { DashboardPenempatanTable } from './tables/dashbaord-penempatan-table';
 import { DashboardKendaraanTable } from './tables/dashboard-kendaraan-table';
+import { Button } from '../ui/button';
 
 export function DashboardInfo({
+  role = '',
   dataKepangkatan = [],
   dataAnggotaKeluarga = [],
   dataRiwayatPendidikan = [],
@@ -34,6 +36,7 @@ export function DashboardInfo({
   dataPenempatan = [],
   dataKendaraan = [],
 }: {
+  role?: string;
   dataKepangkatan?: KepangkatanRow[];
   dataAnggotaKeluarga?: AnggotaKeluargaRow[];
   dataRiwayatPendidikan?: RiwayatPendidikanRow[];
@@ -57,10 +60,17 @@ export function DashboardInfo({
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
         <CardTitle>Informasi Dashboard</CardTitle>
+
+        {role === 'admin' && (
+          <Button variant="success" className="text-sm">
+            Tambah Data
+          </Button>
+        )}
       </CardHeader>
       <CardContent>
+
         {/* Dropdown untuk mobile */}
         <div className="block md:hidden mb-4">
           <select
@@ -157,7 +167,7 @@ export function DashboardInfo({
             <DashboardPenempatanTable data={dataPenempatan} />
           </TabsContent>
 
-           <TabsContent value="kendaraan" className="pt-4">
+          <TabsContent value="kendaraan" className="pt-4">
             <DashboardKendaraanTable data={dataKendaraan} />
           </TabsContent>
 

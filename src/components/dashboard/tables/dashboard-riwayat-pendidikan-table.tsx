@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/table';
 import { Download, ChevronRight } from 'lucide-react';
 import type { RiwayatPendidikanRow } from '../types';
+import { cn } from '@/lib/utils';
 
 export function DashboardRiwayatPendidikanTable({
   data,
@@ -54,13 +55,26 @@ function RiwayatRow({ row }: { row: RiwayatPendidikanRow }) {
       {/* baris utama */}
       <TableRow className="hover:bg-gray-50">
         <TableCell className="border px-4 py-2 text-center">
-          <button onClick={() => setOpen(!open)} className="p-1">
+          <button
+            onClick={() => setOpen(!open)}
+            className={cn(
+              "w-8 h-8 flex items-center justify-center border border-gray-300 rounded-full transition-all duration-200",
+              "hover:bg-gray-100 hover:shadow-sm mx-auto", // Added mx-auto to center horizontally
+              open && "bg-gray-100"
+            )}
+            title={open ? "Sembunyikan detail" : "Lihat detail dokumen"}
+          >
             <ChevronRight
-              className={`w-5 h-5 text-gray-600 transition-transform ${open ? 'rotate-90' : ''
-                }`}
+              className={cn(
+                "w-4 h-4 text-gray-600 transition-transform duration-200",
+                open && "rotate-90"
+              )}
             />
           </button>
+
         </TableCell>
+
+
         <TableCell className="border px-4 py-2">{row.pendidikan}</TableCell>
         <TableCell className="border px-4 py-2">{row.namaInstitusi}</TableCell>
         <TableCell className="border px-4 py-2 text-center">

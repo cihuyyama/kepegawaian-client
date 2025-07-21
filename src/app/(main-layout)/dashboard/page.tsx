@@ -1,49 +1,91 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+import axios from 'axios';
+
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DashboardBreadcrumb } from '@/components/dashboard/dashboard-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, Pegawai, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import {
+  Pegawai,
+  AnggotaKeluargaRow,
+  InpasingRow,
+  JabatanFungsionalRow,
+  JabatanStrukturalRow,
+  KendaraanRow,
+  PenempatanRow,
+  RiwayatPendidikanRow
+} from '@/components/dashboard/types';
+
+import { BASE_URL } from '@/constant/BaseURL';
 
 export default function DashboardPage() {
-  const pegawai: Pegawai = {
-    nip: "198706172019031002",
-    nama: "Budi Santoso",
-    gelarDepan: "Dr.",
-    gelarBelakang: "M.Sc.",
-    jenisKelamin: "Laki-laki",
-    agama: "Islam",
-    golonganDarah: "O",
-    tempatLahir: "Bandung",
-    tanggalLahir: "17 Juni 1987",
-    alamat: "Jl. Merdeka No. 10, Bandung",
-    noHandphone: "081234567890",
-    nbm: "NBM12345",
-    nidn: "NIDN67890",
-    nidk: "NIDK54321",
-    nuptk: "NUPTK11223",
-    idScholar: "scholar.budisantoso",
-    idScopus: "1234567890",
-    isShinta: "SHI-2025-0001",
-    idGaruda: "GAR-98765",
-    npwp: "12.345.678.9-012.345",
-    emailPribadi: "budi.pribadi@gmail.com",
-    emailUniversitas: "budi@universitas.ac.id",
-    nikKependudukan: "3174123456789012",
-    jabatanStruktural: "Kepala Prodi TI",
-    jabatanFungsional: "Lektor Kepala",
-    dokKtp: "/dokumen/ktp_budi.pdf",
-    dokNbm: "/dokumen/nbm_budi.pdf",
-    dokPassport: "/dokumen/passport_budi.pdf",
-    dokBpjsKesehatan: "/dokumen/bpjs_kesehatan_budi.pdf",
-    dokBpjsTenagakerja: "/dokumen/bpjs_tk_budi.pdf",
-    dokSertifikasiDosen: "/dokumen/sertifikasi_budi.pdf",
-    dokNidn: "",
-    foto:
-      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0",
-  };
+  const [pegawai, setPegawai] = useState<Pegawai | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const fetchPegawai = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/users/access-token`, {
+          withCredentials: true
+        });
+
+        const data = res.data?.data;
+        const info = data?.UserInfo || {};
+        const file = data?.photoFile;
+
+        const pegawaiData: Pegawai = {
+          nip: info.NIP ?? '-',
+          nama: data.username ?? '-',
+          gelarDepan: info.GelarDepan ?? '',
+          gelarBelakang: info.GelarBelakang ?? '',
+          jenisKelamin: info.JenisKelamin ?? '-',
+          agama: '-', // optional, tidak ada di API
+          golonganDarah: '-', // optional
+          tempatLahir: info.TempatLahir ?? '-',
+          tanggalLahir: info.TanggalLahir
+            ? new Date(info.TanggalLahir).toLocaleDateString('id-ID')
+            : '-',
+          alamat: info.Alamat ?? '-',
+          noHandphone: info.Phone ?? '-',
+          nbm: info.NBM ?? '-',
+          nidn: info.NIDN ?? '-',
+          nidk: info.NIDK ?? '-',
+          nuptk: info.NUPTK ?? '-',
+          idScholar: info.IDScholar ?? '-',
+          idScopus: info.IDScopus ?? '-',
+          idShinta: info.IDShinta ?? '-',
+          idGaruda: info.IDGaruda ?? '-',
+          npwp: info.NPWP ?? '-',
+          emailPribadi: info.WorkEmail ?? '-',
+          emailUniversitas: data.email ?? '-',
+          nikKependudukan: info.NIK ?? '-',
+          jabatanStruktural: info.JabatanStruktural ?? '-',
+          jabatanFungsional: info.JabatanFungsional ?? '-',
+          dokKtp: info.KTP ?? '',
+          dokNbm: info.DocNBM ?? '',
+          dokPassport: info.Passport ?? '',
+          dokBpjsKesehatan: info.BPJSKesehatan ?? '',
+          dokBpjsTenagakerja: info.BPJSKetenagakerjaan ?? '',
+          dokSertifikasiDosen: info.SertifikasiDosen ?? '',
+          dokNidn: info.DocNIDN ?? '',
+          imgUrl: data.imgUrl
+        };
+
+        setPegawai(pegawaiData);
+        setUserRole(data.role || null); // ⬅️ ambil role dari API
+      } catch (error) {
+        console.error('Gagal mengambil data pegawai:', error);
+        setPegawai(null);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPegawai();
+  }, []);
 
   // Contoh data untuk tabel Kepangkatan
   const dataKepangkatan = [
@@ -217,18 +259,28 @@ export default function DashboardPage() {
     <ContentLayout title="Dashboard">
       <DashboardBreadcrumb />
       <div className="mt-6 w-full space-y-6">
-        <DashboardProfileCard pegawai={pegawai} />
-        <DashboardInfo
-          dataKepangkatan={dataKepangkatan}
-          dataAnggotaKeluarga={dataAnggotaKeluarga}
-          dataRiwayatPendidikan={dataRiwayatPendidikan}
-          dataJabatanFungsional={dataJabatanFungsional}
-          dataInpasing={dataInpasing}
-          dataJabatanStruktural={dataJabatanStruktural}
-          dataPenempatan={dataPenempatan}
-          dataKendaraan={dataKendaraan}
-        />
+        {loading ? (
+          <p className="text-gray-500">Memuat data pegawai...</p>
+        ) : pegawai ? (
+          <>
+            <DashboardProfileCard pegawai={pegawai} />
+            <DashboardInfo
+              role={userRole || ''}
+              dataKepangkatan={dataKepangkatan}
+              dataAnggotaKeluarga={dataAnggotaKeluarga}
+              dataRiwayatPendidikan={dataRiwayatPendidikan}
+              dataJabatanFungsional={dataJabatanFungsional}
+              dataInpasing={dataInpasing}
+              dataJabatanStruktural={dataJabatanStruktural}
+              dataPenempatan={dataPenempatan}
+              dataKendaraan={dataKendaraan}
+            />
+          </>
+        ) : (
+          <p className="text-red-500">Data pegawai tidak ditemukan.</p>
+        )}
       </div>
     </ContentLayout>
   );
 }
+

@@ -44,23 +44,26 @@ const LoginPage = () => {
                 {
                     loading: 'Logging in...',
                     success: async () => {
-                        // Tunggu backend nyimpan cookie di browser
+                        // Tunggu cookie disimpan
                         await new Promise((res) => setTimeout(res, 500));
 
                         try {
-                            const check = await axios.get(`${BASE_URL}/users`, {
+                            const accessTokenRes = await axios.get(`${BASE_URL}/users/access-token`, {
                                 withCredentials: true,
                             });
 
-                            if (check.status === 200) {
-                                router.push("/dashboard");
-                                return "Login berhasil!";
+                            const role = accessTokenRes?.data?.data?.role;
+
+                            if (role === "admin") {
+                                router.push("/users");
                             } else {
-                                return "Login berhasil, tetapi gagal mengambil data pengguna.";
+                                router.push("/dashboard");
                             }
+
+                            return "Login berhasil!";
                         } catch (error) {
                             console.error("Session check failed", error);
-                            return "Login berhasil, tapi tidak bisa memverifikasi sesi.";
+                            return "Login berhasil, tapi tidak bisa verifikasi role.";
                         }
                     },
                     error: 'Error logging in'
