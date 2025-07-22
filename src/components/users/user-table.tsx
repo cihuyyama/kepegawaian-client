@@ -153,7 +153,7 @@ export function UserTable() {
                           size="sm"
                           disabled={!user.userinfoId}
                         >
-                          Biodata
+                          Data
                         </Button>
                       </Link>
 

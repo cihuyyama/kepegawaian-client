@@ -11,7 +11,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { UserBreadcrumb } from '@/components/users/user-breadcrumb';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
-import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, PenempatanRow, RiwayatPendidikanRow } from '@/components/dashboard/types';
+import { AnggotaKeluargaRow, InpasingRow, JabatanFungsionalRow, JabatanStrukturalRow, KendaraanRow, PenempatanRow, RiwayatPendidikanRow } from '@/types';
+import { UploadDokumen } from '@/components/users/upload-dokumen';
 
 export default function EditUserinfoPage() {
   const { userinfoId } = useParams();
@@ -363,7 +364,7 @@ export default function EditUserinfoPage() {
       <div className="mt-6">
         <Card>
           <CardHeader>
-            <CardTitle>Edit Biodata Pegawai</CardTitle>
+            <CardTitle>Edit Data Pegawai</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col md:flex-row gap-6">
@@ -462,19 +463,39 @@ export default function EditUserinfoPage() {
                 ))}
               </div>
             </div>
+
           </CardContent>
         </Card>
-        <DashboardInfo
-          role={userRole}
-          dataKepangkatan={dataKepangkatan}
-          dataAnggotaKeluarga={dataAnggotaKeluarga}
-          dataRiwayatPendidikan={dataRiwayatPendidikan}
-          dataJabatanFungsional={dataJabatanFungsional}
-          dataInpasing={dataInpasing}
-          dataJabatanStruktural={dataJabatanStruktural}
-          dataPenempatan={dataPenempatan}
-          dataKendaraan={dataKendaraan}
-        />
+        {formData?.userId && (
+          <Card className="mt-6">
+            <CardHeader>
+              <CardTitle>Dokumen Pegawai</CardTitle>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <UploadDokumen userId={formData.userId} documentType="KTP" label="Dok. KTP" />
+              <UploadDokumen userId={formData.userId} documentType="DocNBM" label="Dok. NBM" />
+              <UploadDokumen userId={formData.userId} documentType="DocNIDN" label="Dok. NIDN" />
+              <UploadDokumen userId={formData.userId} documentType="SertifikasiDosen" label="Sertifikasi Dosen" />
+              <UploadDokumen userId={formData.userId} documentType="Passport" label="Dok. Passport" />
+              <UploadDokumen userId={formData.userId} documentType="BPJSKesehatan" label="BPJS Kesehatan" />
+              <UploadDokumen userId={formData.userId} documentType="BPJSKetenagakerjaan" label="BPJS Ketenagakerjaan" />
+            </CardContent>
+          </Card>
+
+        )}
+        <div className="mt-6">
+          <DashboardInfo
+            role={userRole}
+            dataKepangkatan={dataKepangkatan}
+            dataAnggotaKeluarga={dataAnggotaKeluarga}
+            dataRiwayatPendidikan={dataRiwayatPendidikan}
+            dataJabatanFungsional={dataJabatanFungsional}
+            dataInpasing={dataInpasing}
+            dataJabatanStruktural={dataJabatanStruktural}
+            dataPenempatan={dataPenempatan}
+            dataKendaraan={dataKendaraan}
+          />
+        </div>
       </div>
     </ContentLayout>
   );
