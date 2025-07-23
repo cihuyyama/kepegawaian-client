@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { BASE_URL } from "@/constant/BaseURL";
 import { UserForm } from "@/components/users/user-form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ContentLayout } from "@/components/admin-panel/content-layout";
+import { UserBreadcrumb } from "@/components/users/user-breadcrumb";
 
 export default function EditUserPage() {
   const router = useRouter();
@@ -77,24 +79,27 @@ export default function EditUserPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto mt-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit User</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {!loading ? (
-            <UserForm
-              initialValues={formData}
-              onSubmit={handleUpdate}
-              loading={loading}
-              cancelHref="/users"
-            />
-          ) : (
-            <p>Loading...</p>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <ContentLayout title="Edit User">
+      <UserBreadcrumb page="Edit" />
+      <div className="mt-6 max-w-xl center mx-auto">
+        <Card>
+          <CardHeader>
+            <CardTitle>Edit User</CardTitle>
+          </CardHeader>
+          <CardContent>
+            {!loading ? (
+              <UserForm
+                initialValues={formData}
+                onSubmit={handleUpdate}
+                loading={loading}
+                cancelHref="/users"
+              />
+            ) : (
+              <p>Loading...</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+    </ContentLayout>
   );
 }

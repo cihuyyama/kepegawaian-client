@@ -1,3 +1,5 @@
+import { UserDocument } from "./utils/documents";
+
 export interface Pegawai {
   nip: string;
   nama: string;
@@ -7,7 +9,7 @@ export interface Pegawai {
   agama: string;
   golonganDarah?: string;
   tempatLahir: string;
-  tanggalLahir: string;       // misal 'DD MMMM YYYY'
+  tanggalLahir: string;
   alamat: string;
   noHandphone: string;
   nbm?: string;
@@ -24,13 +26,16 @@ export interface Pegawai {
   nikKependudukan: string;
   jabatanStruktural?: string;
   jabatanFungsional?: string;
-  dokKtp?: string;
-  dokNbm?: string;
-  dokPassport?: string;
-  dokBpjsKesehatan?: string;
-  dokBpjsTenagakerja?: string;
-  dokSertifikasiDosen?: string;
-  dokNidn?: string;
+
+  // Dokumen-dokumen
+  dokKtp?: UserDocument | null;
+  dokNbm?: UserDocument | null;
+  dokPassport?: UserDocument | null;
+  dokBpjsKesehatan?: UserDocument | null;
+  dokBpjsTenagakerja?: UserDocument | null;
+  dokSertifikasiDosen?: UserDocument | null;
+  dokNidn?: UserDocument | null;
+
   imgUrl: string;
 }
 
@@ -119,7 +124,6 @@ export interface KendaraanRow {
   jenis: string;
   dokumen?: string;  // URL/path ke dokumen kendaraan
 }
-
 
 
 

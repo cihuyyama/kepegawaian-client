@@ -39,6 +39,17 @@ export function getMenuList(pathname: string, role: string): Group[] {
       },
     ],
   };
+  const dosen: Group = {
+    groupLabel: "",
+    menus: [
+      {
+        href: "/dosen",
+        label: "Dosen",
+        icon: LayoutGrid,
+        submenus: [],
+      },
+    ],
+  };
 
   const admin: Group = {
     groupLabel: "Admin",
@@ -53,9 +64,11 @@ export function getMenuList(pathname: string, role: string): Group[] {
 
   switch (role) {
     case "admin":
-      return [admin]; // ⛔ Dashboard TIDAK dikembalikan untuk admin
+      return [dashboard,dosen, admin]; // ⛔ Dashboard TIDAK dikembalikan untuk admin
     case "dosen":
-      return [dashboard]; // ✅ hanya dosen yang melihat Dashboard
+      return [dashboard]; // ✅ hanya dosen yang melihat Dashboard\
+    case "kaprodi":
+      return [dashboard, dosen]; // ✅ Kaprodi melihat Dashboard dan Dosen
     default:
       return [];
   }

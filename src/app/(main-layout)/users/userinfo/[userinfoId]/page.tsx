@@ -360,7 +360,7 @@ export default function EditUserinfoPage() {
   return (
     <ContentLayout title="Edit Profil Pegawai">
 
-      <UserBreadcrumb />
+      <UserBreadcrumb page='Data' />
       <div className="mt-6">
         <Card>
           <CardHeader>

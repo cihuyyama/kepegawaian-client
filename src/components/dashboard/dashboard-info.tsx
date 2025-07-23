@@ -13,7 +13,7 @@ import type {
   KepangkatanRow,
   PenempatanRow,
   RiwayatPendidikanRow,
-} from './types';
+} from '@/types';
 
 import { DashboardKepangkatanTable } from './tables/dashboard-kepangkatan-table';
 import { DashboardAnggotaKeluargaTable } from './tables/dashboard-anggota-keluarga-table';

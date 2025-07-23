@@ -15,7 +15,7 @@ const isUserDocument = (v: unknown): v is UserDocument =>
 
 const fileNameFromUrl = (doc: UserDocument) => doc.originalName || doc.filename;
 
-export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
+export function DosenProfileCard({ pegawai }: { pegawai: Pegawai }) {
   const sanitizeValue = (val: unknown) => {
     if (val === null || val === undefined) return '-';
     // jangan ubah object dokumen jadi string
@@ -78,7 +78,7 @@ export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Profil Pegawai</CardTitle>
+        <CardTitle>Profil Dosen</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="flex flex-col md:flex-row gap-6">
@@ -88,16 +88,18 @@ export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
               <img
                 src={
                   pegawai?.imgUrl
-                    ? `${process.env.NEXT_PUBLIC_DOMAIN}/${pegawai.imgUrl}`
+                    ? pegawai.imgUrl.startsWith('http')
+                      ? pegawai.imgUrl
+                      : `${process.env.NEXT_PUBLIC_DOMAIN}/${pegawai.imgUrl}`
                     : '/img/Default-Icon.jpg'
                 }
-                alt="Foto Pegawai"
+                alt="Foto Dosen"
                 className="object-cover w-full h-full rounded-md border"
               />
             </div>
           </div>
 
-          {/* Info Pegawai */}
+          {/* Info */}
           <div className="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
             {/* Kolom kiri */}
             <div className="space-y-4">
