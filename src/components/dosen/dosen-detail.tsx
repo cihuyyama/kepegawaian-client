@@ -1,6 +1,9 @@
 // src/components/dosen/dosen-detail.tsx
 'use client';
 
+import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+
 import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-card';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
 import type {
@@ -15,10 +18,11 @@ import type {
   KendaraanRow,
 } from '@/types';
 import { DosenProfileCard } from './dosen-profile-card';
+import { BASE_URL } from '@/constant/BaseURL';
 
 export function DosenDetail({
+  userId,
   pegawai,
-  kepangkatan,
   keluarga,
   pendidikan,
   jafung,
@@ -28,8 +32,9 @@ export function DosenDetail({
   kendaraan,
   role = 'kaprodi',
 }: {
+  /** wajib: id user untuk filter kepangkatan */
+  userId: string;
   pegawai: Pegawai;
-  kepangkatan: KepangkatanRow[];
   keluarga: AnggotaKeluargaRow[];
   pendidikan: RiwayatPendidikanRow[];
   jafung: JabatanFungsionalRow[];
@@ -39,11 +44,81 @@ export function DosenDetail({
   kendaraan: KendaraanRow[];
   role?: string;
 }) {
+  const [kepangkatanData, setKepangkatanData] = useState<KepangkatanRow[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      setLoading(true);
+      try {
+        // ambil semua kepangkatan
+        const res = await fetch(`${BASE_URL}/kepangkatan`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat kepangkatan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const fmtDate = (iso: string) => {
+          const d = new Date(iso);
+          return [
+            String(d.getDate()).padStart(2, '0'),
+            String(d.getMonth() + 1).padStart(2, '0'),
+            d.getFullYear(),
+          ].join('-');
+        };
+
+        // filter hanya yang userId-nya sama
+        const filtered = items.filter(it => it.userId === userId);
+
+        // map ke KepangkatanRow
+        const mapped: KepangkatanRow[] = filtered.map(it => ({
+          id: it.id,
+          kepangkatan: it.nama,
+          noSK: it.NomorSK,
+          tglSK: fmtDate(it.TanggalSK),
+          tmt: fmtDate(it.TMT),
+          tglAkhirKontrak: it.TanggalAkhirKontrak
+            ? fmtDate(it.TanggalAkhirKontrak)
+            : '-',
+          jenisSK: it.JenisSK,
+          gajiPokok: it.GajiPokok,
+          docId: it.id, // untuk endpoint download nanti
+          originalName: it.DokumenSK?.originalName,
+          dokumenSK: it.DokumenSK?.path
+            ? `${process.env.NEXT_PUBLIC_DOMAIN}/${it.DokumenSK.path
+              .split('public\\')[1]
+              ?.replace(/\\/g, '/')}`
+            : undefined,
+          mulaiMasaKerja: false,
+        }));
+
+        setKepangkatanData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat data kepangkatan');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [userId]);
+
+  if (loading) {
+    return (
+      <p className="mt-6 text-center text-gray-500">
+        Memuat data kepangkatan…
+      </p>
+    );
+  }
+
   return (
     <>
+      <DosenProfileCard pegawai={pegawai} />
+
       <DashboardInfo
         role={role}
-        dataKepangkatan={kepangkatan}
+        dataKepangkatan={kepangkatanData}
         dataAnggotaKeluarga={keluarga}
         dataRiwayatPendidikan={pendidikan}
         dataJabatanFungsional={jafung}

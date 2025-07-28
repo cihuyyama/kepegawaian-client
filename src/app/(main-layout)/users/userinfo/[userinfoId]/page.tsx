@@ -20,6 +20,7 @@ import {
   KendaraanRow,
   PenempatanRow,
   RiwayatPendidikanRow,
+  KepangkatanRow,
 } from '@/types';
 
 import { BASE_URL } from '@/constant/BaseURL';
@@ -40,34 +41,10 @@ export default function EditUserinfoPage() {
   const [photoLoading, setPhotoLoading] = useState(false);
   const [imageVersion, setImageVersion] = useState(Date.now());
 
+  const [dataKepangkatan, setDataKepangkatan] = useState<KepangkatanRow[]>([]);
+
   // --- load data ---
-  useEffect(() => {
-    (async () => {
-      try {
-        const [roleRes, listRes] = await Promise.all([
-          fetch(`${BASE_URL}/users/access-token`, { credentials: 'include' }),
-          fetch(`${BASE_URL}/userinfo`, { credentials: 'include' }),
-        ]);
 
-        const roleJson = await roleRes.json();
-        setRole(roleJson.data?.role || '');
-
-        const listJson = await listRes.json();
-        const arr = listJson.data || [];
-        // cari berdasarkan id userinfo yang ada di params
-        const found = arr.find((r: any) => r.id === userinfoId);
-        if (!found) throw new Error('Userinfo tidak ditemukan');
-
-        setRawData(found);
-        setPegawai(mapToPegawai(found));
-      } catch (e: any) {
-        console.error(e);
-        toast.error(e.message || 'Gagal memuat data');
-      } finally {
-        setLoading(false);
-      }
-    })();
-  }, [userinfoId]);
 
   // --- handlers ---
   const onFieldSave = async (field: string, value: string) => {
@@ -137,12 +114,9 @@ export default function EditUserinfoPage() {
     }
   };
 
-  if (loading) return <p className="mt-6 text-center text-gray-500">Memuat...</p>;
-  if (!rawData || !pegawai)
-    return <p className="mt-6 text-center text-red-500">Data tidak ditemukan.</p>;
+
 
   // Dummy data untuk DashboardInfo
-  const dataKepangkatan: AnggotaKeluargaRow[] = [];
   const dataAnggotaKeluarga: AnggotaKeluargaRow[] = [];
   const dataRiwayatPendidikan: RiwayatPendidikanRow[] = [];
   const dataJabatanFungsional: JabatanFungsionalRow[] = [];
@@ -151,6 +125,93 @@ export default function EditUserinfoPage() {
   const dataPenempatan: PenempatanRow[] = [];
   const dataKendaraan: KendaraanRow[] = [];
 
+  // 1) Fetch role & userinfo
+  useEffect(() => {
+    (async () => {
+      try {
+        const [roleRes, infoRes] = await Promise.all([
+          fetch(`${BASE_URL}/users/access-token`, { credentials: 'include' }),
+          fetch(`${BASE_URL}/userinfo`, { credentials: 'include' }),
+        ]);
+
+        const roleJson = await roleRes.json();
+        setRole(roleJson.data?.role ?? '');
+
+        const infoJson = await infoRes.json();
+        const found = (infoJson.data || []).find((u: any) => u.id === userinfoId);
+        if (!found) throw new Error('Userinfo tidak ditemukan');
+
+        setRawData(found);
+        setPegawai(mapToPegawai(found));
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat data');
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [userinfoId]);
+
+  // 2) Setelah rawData.userId tersedia, fetch kepangkatan hanya sekali
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        // ambil semua kepangkatan
+        const res = await fetch(
+          `${BASE_URL}/kepangkatan`,
+          { credentials: 'include' }
+        );
+        if (!res.ok) throw new Error('Gagal memuat kepangkatan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        // helper format tanggal
+        const fmt = (iso: string) => {
+          const d = new Date(iso);
+          return [
+            String(d.getDate()).padStart(2, '0'),
+            String(d.getMonth() + 1).padStart(2, '0'),
+            d.getFullYear(),
+          ].join('-');
+        };
+
+        // filter hanya yang userId-nya match
+        const filtered = items.filter(it => it.userId === rawData.userId);
+
+        // map ke interface KepangkatanRow
+        const mapped: KepangkatanRow[] = filtered.map(it => ({
+          id: it.id,
+          kepangkatan: it.nama,
+          noSK: it.NomorSK,
+          tglSK: fmt(it.TanggalSK),
+          tmt: fmt(it.TMT),
+          tglAkhirKontrak: it.TanggalAkhirKontrak
+            ? fmt(it.TanggalAkhirKontrak)
+            : '-',
+          jenisSK: it.JenisSK,
+          gajiPokok: it.GajiPokok,
+          docId: it.id,  // pakai record.id untuk download endpoint
+          originalName: it.DokumenSK?.originalName,
+          dokumenSK: it.DokumenSK?.path
+            ? `${process.env.NEXT_PUBLIC_DOMAIN}/${it.DokumenSK.path
+              .split('public\\')[1]
+              ?.replace(/\\/g, '/')}`
+            : undefined,
+          mulaiMasaKerja: false,
+        }));
+
+        setDataKepangkatan(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat data kepangkatan');
+      }
+    })();
+  }, [rawData?.userId]);
+
+  if (loading) return <p className="mt-6 text-center text-gray-500">Memuat...</p>;
+  if (!rawData || !pegawai)
+    return <p className="mt-6 text-center text-red-500">Data tidak ditemukan.</p>;
   return (
     <ContentLayout title="Edit Profil Pegawai">
       <UserBreadcrumb page="Data" />
@@ -169,7 +230,9 @@ export default function EditUserinfoPage() {
 
         <DashboardInfo
           role={role}
-          dataKepangkatan={dataKepangkatan as any}
+          userId={rawData.userId}
+          userinfoId={userinfoId}
+          dataKepangkatan={dataKepangkatan}
           dataAnggotaKeluarga={dataAnggotaKeluarga}
           dataRiwayatPendidikan={dataRiwayatPendidikan}
           dataJabatanFungsional={dataJabatanFungsional}

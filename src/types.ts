@@ -1,6 +1,7 @@
 import { UserDocument } from "./utils/documents";
 
 export interface Pegawai {
+  
   nip: string;
   nama: string;
   gelarDepan?: string;
@@ -39,19 +40,21 @@ export interface Pegawai {
   imgUrl: string;
 }
 
-
-
 export interface KepangkatanRow {
+  id: string;
   kepangkatan: string;
   noSK: string;
   tglSK: string;
   tmt: string;
   tglAkhirKontrak: string;
   jenisSK: string;
-  gajiPokok: string | number;
+  gajiPokok: string|number;
+  docId?: string;
+  originalName?: string;
   dokumenSK?: string;
-  mulaiMasaKerja: boolean;    // true = checkbox tercentang
+  mulaiMasaKerja: boolean;
 }
+
 
 
 export interface AnggotaKeluargaRow {

@@ -1,3 +1,4 @@
+// src/app/(main-layout)/dosen/[id]/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -6,11 +7,9 @@ import { useParams } from 'next/navigation';
 import { ContentLayout } from '@/components/admin-panel/content-layout';
 import { DosenBreadcrumb } from '@/components/dosen/dosen-breadcrumb';
 import { DosenDetail } from '@/components/dosen/dosen-detail';
-import { DosenProfileCard } from '@/components/dosen/dosen-profile-card';
 
 import type {
   Pegawai,
-  KepangkatanRow,
   AnggotaKeluargaRow,
   RiwayatPendidikanRow,
   JabatanFungsionalRow,
@@ -23,7 +22,6 @@ import type {
 import { buildDoc } from '@/utils/documents';
 import { BASE_URL } from '@/constant/BaseURL';
 
-/* ==== mapper sama seperti di list page ==== */
 const mapToPegawai = (r: any): Pegawai => ({
   nip: r.NIP ?? '',
   nama: r.user?.username ?? '',
@@ -59,10 +57,10 @@ const mapToPegawai = (r: any): Pegawai => ({
   dokSertifikasiDosen: buildDoc(r.userId, 'SertifikasiDosen', r.SertifikasiDosen),
   dokNidn: buildDoc(r.userId, 'DocNIDN', r.DocNIDN),
 
-  imgUrl: r.user.imgUrl
+  imgUrl: r.user?.imgUrl ?? '',
 });
+
 const normalizeNip = (nip: string) => nip.replace(/\s+/g, '');
-/* ========================================= */
 
 export default function DosenDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -70,11 +68,11 @@ export default function DosenDetailPage() {
   const nipNormalized = normalizeNip(nipFromUrl);
 
   const [role, setRole] = useState<string>('');
+  const [rawData, setRawData] = useState<any>(null);
   const [pegawai, setPegawai] = useState<Pegawai | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // sementara tabel lain kosong (isi kalau sudah ada API-nya)
-  const kepangkatan: KepangkatanRow[] = [];
+  // tabel–tabel lain masih kosong
   const keluarga: AnggotaKeluargaRow[] = [];
   const pendidikan: RiwayatPendidikanRow[] = [];
   const jafung: JabatanFungsionalRow[] = [];
@@ -96,10 +94,15 @@ export default function DosenDetailPage() {
 
         const listJson = await listRes.json();
         const arr = listJson.data || [];
-        const foundRaw = arr.find((r: any) => normalizeNip(r.NIP ?? '') === nipNormalized);
+        const foundRaw = arr.find(
+          (r: any) => normalizeNip(r.NIP ?? '') === nipNormalized
+        );
+
+        setRawData(foundRaw ?? null);
         setPegawai(foundRaw ? mapToPegawai(foundRaw) : null);
       } catch (e) {
         console.error(e);
+        setRawData(null);
         setPegawai(null);
       } finally {
         setLoading(false);
@@ -115,7 +118,7 @@ export default function DosenDetailPage() {
     );
   }
 
-  if (!pegawai) {
+  if (!pegawai || !rawData) {
     return (
       <ContentLayout title="Detail Dosen">
         <p className="mt-6 text-red-500">Data dosen tidak ditemukan.</p>
@@ -126,12 +129,11 @@ export default function DosenDetailPage() {
   return (
     <ContentLayout title="Detail Dosen">
       <DosenBreadcrumb page="Detail" />
-      <div className="mt-6 w-full space-y-6">
-        <DosenProfileCard pegawai={pegawai} />
 
+      <div className="mt-6 w-full space-y-6">
         <DosenDetail
+          userId={rawData.userId} 
           pegawai={pegawai}
-          kepangkatan={kepangkatan}
           keluarga={keluarga}
           pendidikan={pendidikan}
           jafung={jafung}

@@ -1,8 +1,11 @@
+// src/components/dashboard/dashboard-info.tsx
 'use client';
 
 import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Button } from '../ui/button';
+import Link from 'next/link';
 
 import type {
   AnggotaKeluargaRow,
@@ -14,7 +17,6 @@ import type {
   PenempatanRow,
   RiwayatPendidikanRow,
 } from '@/types';
-
 import { DashboardKepangkatanTable } from './tables/dashboard-kepangkatan-table';
 import { DashboardAnggotaKeluargaTable } from './tables/dashboard-anggota-keluarga-table';
 import { DashboardRiwayatPendidikanTable } from './tables/dashboard-riwayat-pendidikan-table';
@@ -23,10 +25,11 @@ import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
 import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
 import { DashboardPenempatanTable } from './tables/dashbaord-penempatan-table';
 import { DashboardKendaraanTable } from './tables/dashboard-kendaraan-table';
-import { Button } from '../ui/button';
 
 export function DashboardInfo({
   role = '',
+  userinfoId,
+  userId,
   dataKepangkatan = [],
   dataAnggotaKeluarga = [],
   dataRiwayatPendidikan = [],
@@ -37,6 +40,8 @@ export function DashboardInfo({
   dataKendaraan = [],
 }: {
   role?: string;
+  userinfoId?: string;        // sekarang optional
+  userId?: string;            // sekarang optional
   dataKepangkatan?: KepangkatanRow[];
   dataAnggotaKeluarga?: AnggotaKeluargaRow[];
   dataRiwayatPendidikan?: RiwayatPendidikanRow[];
@@ -64,9 +69,11 @@ export function DashboardInfo({
         <CardTitle>Informasi Dashboard</CardTitle>
 
         {role === 'admin' && (
-          <Button variant="success" className="text-sm">
-            Tambah Data
-          </Button>
+          <Link  href={`/users/userinfo/${userinfoId}/kepangkatan/add?userId=${userId}`}>
+            <Button variant="success" className="text-sm">
+              Tambah Data
+            </Button>
+          </Link>
         )}
       </CardHeader>
       <CardContent>
