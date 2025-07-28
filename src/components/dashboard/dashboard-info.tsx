@@ -63,13 +63,29 @@ export function DashboardInfo({
     | 'kendaraan'
   >('kepangkatan');
 
+  // 1) Mapping tiap tab ke segmen folder add
+  const addRoutes: Record<typeof activeTab, string | null> = {
+    kepangkatan: 'kepangkatan',
+    anggotakeluarga: 'keluarga',
+    riwayatpendidikan: 'riwayatpendidikan',
+    jabatanfungsional: 'jabatanfungsional',
+    inpasing: 'inpasing',
+    jabatanstruktural: 'jabatanstruktural',
+    pelatihan: 'pelatihan',
+    penempatan: 'penempatan',
+    kendaraan: 'kendaraan',
+  };
+  const currentAddRoute = addRoutes[activeTab];
+
   return (
     <Card>
       <CardHeader className="flex flex-col md:flex-row items-start md:items-center justify-between gap-2">
         <CardTitle>Informasi Dashboard</CardTitle>
 
-        {role === 'admin' && (
-          <Link  href={`/users/userinfo/${userinfoId}/kepangkatan/add?userId=${userId}`}>
+        {role === 'admin' && currentAddRoute && (
+          <Link
+            href={`/users/userinfo/${userinfoId}/${currentAddRoute}/add?userId=${userId}`}
+          >
             <Button variant="success" className="text-sm">
               Tambah Data
             </Button>

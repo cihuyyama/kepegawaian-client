@@ -42,6 +42,7 @@ export default function EditUserinfoPage() {
   const [imageVersion, setImageVersion] = useState(Date.now());
 
   const [dataKepangkatan, setDataKepangkatan] = useState<KepangkatanRow[]>([]);
+  const [dataAnggotaKeluarga, setDataAnggotaKeluarga] = useState<AnggotaKeluargaRow[]>([]);
 
   // --- load data ---
 
@@ -117,7 +118,6 @@ export default function EditUserinfoPage() {
 
 
   // Dummy data untuk DashboardInfo
-  const dataAnggotaKeluarga: AnggotaKeluargaRow[] = [];
   const dataRiwayatPendidikan: RiwayatPendidikanRow[] = [];
   const dataJabatanFungsional: JabatanFungsionalRow[] = [];
   const dataInpasing: InpasingRow[] = [];
@@ -205,6 +205,43 @@ export default function EditUserinfoPage() {
       } catch (e: any) {
         console.error(e);
         toast.error(e.message || 'Gagal memuat data kepangkatan');
+      }
+    })();
+  }, [rawData?.userId]);
+
+
+  // 3) Setelah rawData.userId tersedia, fetch anggota keluarga
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${BASE_URL}/keluargauser/${rawData.userId}`,
+          { credentials: 'include' }
+        );
+        if (!res.ok) throw new Error('Gagal memuat data anggota keluarga');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        // Map API response ke AnggotaKeluargaRow
+        const mapped: AnggotaKeluargaRow[] = items.map((it) => ({
+          nama: it.nama,
+          tempatLahir: it.tempatLahir,
+          agama: it.agama,
+          jenisKelamin: it.jenisKelamin,
+          nik: it.nik,
+          pendidikan: it.pendidikan,
+          hubunganKeluarga: it.hubunganKeluarga,
+          tunjanganBeras: it.tunjanganBeras,
+          tunjanganKeluarga: it.tunjanganKeluarga,
+          potonganAsuransi: it.potonganAsuransi,
+          tanggunganPajak: it.tanggunganPajak,
+        }));
+
+        setDataAnggotaKeluarga(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat anggota keluarga');
       }
     })();
   }, [rawData?.userId]);
@@ -497,7 +534,7 @@ function EditableProfileCard({
               autoFocus
             >
               <option value="">Pilih Jenis Kelamin</option>
-              <option value="L">Laki-laki</option>
+              <option value="L">Laki-Laki</option>
               <option value="P">Perempuan</option>
             </select>
           ) : (
@@ -514,7 +551,7 @@ function EditableProfileCard({
               ? toDDMMYYYY(currentValue as string)
               : type === 'select-gender'
                 ? currentValue === 'L'
-                  ? 'Laki-laki'
+                  ? 'Laki-Laki'
                   : currentValue === 'P'
                     ? 'Perempuan'
                     : currentValue || '-'

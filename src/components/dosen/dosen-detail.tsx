@@ -45,6 +45,7 @@ export function DosenDetail({
   role?: string;
 }) {
   const [kepangkatanData, setKepangkatanData] = useState<KepangkatanRow[]>([]);
+  const [keluargaData, setKeluargaData] = useState<AnggotaKeluargaRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -104,6 +105,38 @@ export function DosenDetail({
     })();
   }, [userId]);
 
+  // fetch anggota keluarga
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/keluargauser/${userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat anggota keluarga');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+        const mapped: AnggotaKeluargaRow[] = items.map(it => ({
+          nama: it.nama,
+          tempatLahir: it.tempatLahir,
+          agama: it.agama,
+          jenisKelamin: it.jenisKelamin,
+          nik: it.nik,
+          pendidikan: it.pendidikan,
+          hubunganKeluarga: it.hubunganKeluarga,
+          tunjanganBeras: it.tunjanganBeras,
+          tunjanganKeluarga: it.tunjanganKeluarga,
+          potonganAsuransi: it.potonganAsuransi,
+          tanggunganPajak: it.tanggunganPajak,
+        }));
+        setKeluargaData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat anggota keluarga');
+      }
+    })();
+  }, [userId]);
+
   if (loading) {
     return (
       <p className="mt-6 text-center text-gray-500">
@@ -119,7 +152,7 @@ export function DosenDetail({
       <DashboardInfo
         role={role}
         dataKepangkatan={kepangkatanData}
-        dataAnggotaKeluarga={keluarga}
+        dataAnggotaKeluarga={keluargaData}
         dataRiwayatPendidikan={pendidikan}
         dataJabatanFungsional={jafung}
         dataInpasing={inpasing}
