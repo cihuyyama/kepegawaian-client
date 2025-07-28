@@ -178,7 +178,11 @@ export function DashboardInfo({
           </TabsContent>
 
           <TabsContent value="riwayatpendidikan" className="pt-4">
-            <DashboardRiwayatPendidikanTable data={dataRiwayatPendidikan} />
+            <DashboardRiwayatPendidikanTable
+              data={dataRiwayatPendidikan}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!} />
           </TabsContent>
 
           <TabsContent value="jabatanfungsional" className="pt-4">

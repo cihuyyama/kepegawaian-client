@@ -78,6 +78,8 @@ export interface DokumenRow {
 }
 
 export interface RiwayatPendidikanRow {
+  id: string;
+  userId: string;
   pendidikan: string;
   namaInstitusi: string;
   tahunLulus: string;      // misal '2023'

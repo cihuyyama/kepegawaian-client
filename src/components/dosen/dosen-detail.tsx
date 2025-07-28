@@ -46,6 +46,7 @@ export function DosenDetail({
 }) {
   const [kepangkatanData, setKepangkatanData] = useState<KepangkatanRow[]>([]);
   const [keluargaData, setKeluargaData] = useState<AnggotaKeluargaRow[]>([]);
+  const [pendidikanData, setPendidikanData] = useState<RiwayatPendidikanRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -138,6 +139,31 @@ export function DosenDetail({
     })();
   }, [userId]);
 
+  // Fetch riwayat pendidikan
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/pendidikan/user/${userId}`, { credentials: 'include' });
+        if (!res.ok) throw new Error('Gagal memuat riwayat pendidikan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+        const mapped = items.map(it => ({
+          id: it.id,
+          userId: it.userId,
+          pendidikan: it.pendidikan,
+          namaInstitusi: it.namaInstitusi,
+          tahunLulus: String(it.tahunLulus),
+          dokumen: [],    // kosong karena endpoint belum mengembalikan dokumen
+        }));
+        setPendidikanData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat riwayat pendidikan');
+      }
+    })();
+  }, [userId]);
+
   if (loading) {
     return (
       <p className="mt-6 text-center text-gray-500">
@@ -154,7 +180,7 @@ export function DosenDetail({
         role={role}
         dataKepangkatan={kepangkatanData}
         dataAnggotaKeluarga={keluargaData}
-        dataRiwayatPendidikan={pendidikan}
+        dataRiwayatPendidikan={pendidikanData}
         dataJabatanFungsional={jafung}
         dataInpasing={inpasing}
         dataJabatanStruktural={jastru}
