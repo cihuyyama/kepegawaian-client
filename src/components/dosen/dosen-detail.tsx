@@ -117,6 +117,7 @@ export function DosenDetail({
         const json = await res.json();
         const items: any[] = json.data || [];
         const mapped: AnggotaKeluargaRow[] = items.map(it => ({
+          id: it.id,
           nama: it.nama,
           tempatLahir: it.tempatLahir,
           agama: it.agama,

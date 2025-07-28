@@ -225,6 +225,7 @@ export default function EditUserinfoPage() {
 
         // Map API response ke AnggotaKeluargaRow
         const mapped: AnggotaKeluargaRow[] = items.map((it) => ({
+          id: it.id,
           nama: it.nama,
           tempatLahir: it.tempatLahir,
           agama: it.agama,

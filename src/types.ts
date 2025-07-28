@@ -58,6 +58,7 @@ export interface KepangkatanRow {
 
 
 export interface AnggotaKeluargaRow {
+  id: string;
   nama: string;
   tempatLahir: string;
   agama: string;

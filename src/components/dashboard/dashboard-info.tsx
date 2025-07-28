@@ -161,11 +161,20 @@ export function DashboardInfo({
           </TabsList>
 
           <TabsContent value="kepangkatan" className="pt-4">
-            <DashboardKepangkatanTable data={dataKepangkatan} />
+            <DashboardKepangkatanTable
+              data={dataKepangkatan}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!} />
           </TabsContent>
 
           <TabsContent value="anggotakeluarga" className="pt-4">
-            <DashboardAnggotaKeluargaTable data={dataAnggotaKeluarga} />
+            <DashboardAnggotaKeluargaTable
+              data={dataAnggotaKeluarga}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
+            />
           </TabsContent>
 
           <TabsContent value="riwayatpendidikan" className="pt-4">
