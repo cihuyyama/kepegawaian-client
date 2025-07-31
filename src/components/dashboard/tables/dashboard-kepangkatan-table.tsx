@@ -96,17 +96,17 @@ export function DashboardKepangkatanTable({
     <Table>
       <TableHeader>
         <TableRow className="text-center">
-          <TableHead className="border px-4 py-2 bg-gray-100">Kepangkatan</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">No. SK</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Tgl. SK</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">TMT</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Tgl. Akhir Kontrak</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Jenis SK</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Gaji Pokok</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Dokumen SK</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100">Mulai Masa Kerja?</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Kepangkatan</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">No. SK</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Tgl. SK</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">TMT</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Tgl. Akhir Kontrak</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Jenis SK</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Gaji Pokok</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Dokumen SK</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Mulai Masa Kerja?</TableHead>
           {role === 'admin' && (
-            <TableHead className="border px-4 py-2 bg-gray-100">Aksi</TableHead>
+            <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Aksi</TableHead>
           )}
         </TableRow>
       </TableHeader>

@@ -188,6 +188,9 @@ export function DashboardInfo({
           <TabsContent value="jabatanfungsional" className="pt-4">
             <DashboardJabatanFungsionalTable
               data={dataJabatanFungsional}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
             />
           </TabsContent>
 

@@ -87,13 +87,15 @@ export interface RiwayatPendidikanRow {
 }
 
 export interface JabatanFungsionalRow {
+  id: string;
   jabatanFungsional: string;
   noSK: string;
-  tglSK: string;      // format 'YYYY-MM-DD' atau sesuai kebutuhan
-  tmt: string;        // Tanggal Mulai Tugas
-  jenis: string;      // misal 'Kenaikan Pangkat', 'Penyesuaian Angka Kredit', dsb.
+  tglSK: string;     
+  tmt: string;     
+  jenis: string;    
   angkaKredit: number | string;
-  dokumenSK?: string; // URL/file path ke dokumen SK
+  originalName?: string;   
+  dokumenSK?: string;     
 }
 
 export interface InpasingRow {

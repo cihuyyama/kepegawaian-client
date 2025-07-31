@@ -44,6 +44,7 @@ export default function EditUserinfoPage() {
   const [dataKepangkatan, setDataKepangkatan] = useState<KepangkatanRow[]>([]);
   const [dataAnggotaKeluarga, setDataAnggotaKeluarga] = useState<AnggotaKeluargaRow[]>([]);
   const [dataRiwayatPendidikan, setDataRiwayatPendidikan] = useState<RiwayatPendidikanRow[]>([]);
+  const [dataJabatanFungsional, setDataJabatanFungsional] = useState<JabatanFungsionalRow[]>([]);
 
   // --- load data ---
 
@@ -119,7 +120,6 @@ export default function EditUserinfoPage() {
 
 
   // Dummy data untuk DashboardInfo
-  const dataJabatanFungsional: JabatanFungsionalRow[] = [];
   const dataInpasing: InpasingRow[] = [];
   const dataJabatanStruktural: JabatanStrukturalRow[] = [];
   const dataPenempatan: PenempatanRow[] = [];
@@ -276,7 +276,52 @@ export default function EditUserinfoPage() {
     })();
   }, [rawData?.userId]);
 
-  
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        const res = await fetch(
+          `${BASE_URL}/jabatan-fungsional`,
+          { credentials: 'include' }
+        );
+        if (!res.ok) throw new Error('Gagal memuat jabatan fungsional');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const fmt = (iso: string) => {
+          const d = new Date(iso);
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}-${mm}-${yyyy}`;
+        };
+
+        // filter hanya milik current user
+        const filtered = items.filter(it => it.userId === rawData.userId);
+
+        const mapped: JabatanFungsionalRow[] = filtered.map(it => ({
+          id: it.id,
+          jabatanFungsional: it.jabatanFungsional,
+          noSK: it.nomorSK,
+          tglSK: fmt(it.tanggalSK),
+          tmt: fmt(it.tmt),
+          jenis: it.jenis,
+          angkaKredit: it.angkaKredit,
+          originalName: it.dokumenSK?.originalName,
+          dokumenSK: it.dokumenSKId
+            ? `${BASE_URL}/jabatan-fungsional/documents/${it.id}`
+            : undefined,
+        }));
+
+        setDataJabatanFungsional(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat jabatan fungsional');
+      }
+    })();
+  }, [rawData?.userId]);
+
+
   if (loading) return <p className="mt-6 text-center text-gray-500">Memuat...</p>;
   if (!rawData || !pegawai)
     return <p className="mt-6 text-center text-red-500">Data tidak ditemukan.</p>;

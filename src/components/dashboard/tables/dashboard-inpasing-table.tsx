@@ -9,7 +9,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { Download } from 'lucide-react';
-import type { InpasingRow } from '../types';
+import type { InpasingRow } from '@/types';
 
 export function DashboardInpasingTable({ data }: { data: InpasingRow[] }) {
   return (

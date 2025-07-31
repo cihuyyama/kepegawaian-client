@@ -66,12 +66,12 @@ export function DashboardRiwayatPendidikanTable({
     <Table className="table-auto border-collapse w-full">
       <TableHeader>
         <TableRow>
-          <TableHead className="border px-4 py-2 bg-gray-100 text-center" />
-          <TableHead className="border px-4 py-2 bg-gray-100 text-center">Pendidikan</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100 text-center">Nama Institusi</TableHead>
-          <TableHead className="border px-4 py-2 bg-gray-100 text-center">Tahun Lulus</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800" />
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Pendidikan</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Nama Institusi</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Tahun Lulus</TableHead>
           {role === 'admin' && (
-            <TableHead className="border px-4 py-2 bg-gray-100 text-center">Aksi</TableHead>
+            <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Aksi</TableHead>
           )}
         </TableRow>
       </TableHeader>
