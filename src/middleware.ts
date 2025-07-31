@@ -16,5 +16,11 @@ export function middleware(request: NextRequest) {
 export const config = {
     matcher: [ 
         '/dashboard',
+        '/dashboard/:path*',
+        '/dosen',
+        '/dosen/:path*',
+        '/users',
+        '/users/:path*',
+        '/unit-kerja',
     ],
 }
