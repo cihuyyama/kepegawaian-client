@@ -99,10 +99,12 @@ export interface JabatanFungsionalRow {
 }
 
 export interface InpasingRow {
+  id: string;
   kepangkatan: string;
   noSK: string;
   tglSK: string;    // misal format 'YYYY-MM-DD' atau 'DD MMMM YYYY'
   tmt: string;      // tanggal mulai tugas
+  originalName?: string;  
   dokumenSK?: string; // URL atau path ke file SK
 }
 

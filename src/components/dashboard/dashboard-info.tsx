@@ -195,7 +195,11 @@ export function DashboardInfo({
           </TabsContent>
 
           <TabsContent value="inpasing" className="pt-4">
-            <DashboardInpasingTable data={dataInpasing} />
+            <DashboardInpasingTable data={dataInpasing}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
+            />
           </TabsContent>
 
           <TabsContent value="jabatanstruktural" className="pt-4">

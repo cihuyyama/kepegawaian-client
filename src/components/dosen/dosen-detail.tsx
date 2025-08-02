@@ -47,6 +47,9 @@ export function DosenDetail({
   const [kepangkatanData, setKepangkatanData] = useState<KepangkatanRow[]>([]);
   const [keluargaData, setKeluargaData] = useState<AnggotaKeluargaRow[]>([]);
   const [pendidikanData, setPendidikanData] = useState<RiwayatPendidikanRow[]>([]);
+  const [jafungData, setJafungData] = useState<JabatanFungsionalRow[]>([]);
+  const [inpasingData, setInpasingData] = useState<InpasingRow[]>([]);  // ← tambah state baru
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -139,22 +142,24 @@ export function DosenDetail({
     })();
   }, [userId]);
 
-  // Fetch riwayat pendidikan
+  // fetch riwayat pendidikan
   useEffect(() => {
     if (!userId) return;
     (async () => {
       try {
-        const res = await fetch(`${BASE_URL}/pendidikan/user/${userId}`, { credentials: 'include' });
+        const res = await fetch(`${BASE_URL}/pendidikan/user/${userId}`, {
+          credentials: 'include',
+        });
         if (!res.ok) throw new Error('Gagal memuat riwayat pendidikan');
         const json = await res.json();
         const items: any[] = json.data || [];
-        const mapped = items.map(it => ({
+        const mapped: RiwayatPendidikanRow[] = items.map(it => ({
           id: it.id,
           userId: it.userId,
           pendidikan: it.pendidikan,
           namaInstitusi: it.namaInstitusi,
           tahunLulus: String(it.tahunLulus),
-          dokumen: [],    // kosong karena endpoint belum mengembalikan dokumen
+          dokumen: [], // jika endpoint dokumen belum ada
         }));
         setPendidikanData(mapped);
       } catch (err: any) {
@@ -163,6 +168,74 @@ export function DosenDetail({
       }
     })();
   }, [userId]);
+
+
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/jabatan-fungsional`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat jabfung');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const mapped = items
+          .filter(it => it.userId === userId)
+          .map(it => ({
+            id: it.id,
+            jabatanFungsional: it.jabatanFungsional,
+            noSK: it.nomorSK,
+            tglSK: new Date(it.tanggalSK).toISOString().split('T')[0],
+            tmt: new Date(it.tmt).toISOString().split('T')[0],
+            jenis: it.jenis,
+            angkaKredit: it.angkaKredit,
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/jabatan-fungsional/documents/${it.id}`
+              : undefined,
+          }));
+        setJafungData(mapped);
+      } catch (e) {
+        console.error(e);
+        toast.error('Gagal memuat jabatan fungsional');
+      }
+    })();
+  }, [userId]);
+
+
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/inpasing/user/${userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat inpasing');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+        const mapped: InpasingRow[] = items
+          .filter(it => it.userId === userId)
+          .map(it => ({
+            id: it.id,
+            kepangkatan: it.kepangkatan,
+            noSK: it.nomorSK,
+            tglSK: it.tanggalSK.split('T')[0],       // 'YYYY-MM-DD'
+            tmt: it.tmt.split('T')[0],
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/inpasing/dokumen/${it.id}`
+              : undefined,
+          }));
+        setInpasingData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat inpasing');
+      }
+    })();
+  }, [userId]);
+
 
   if (loading) {
     return (
@@ -181,8 +254,8 @@ export function DosenDetail({
         dataKepangkatan={kepangkatanData}
         dataAnggotaKeluarga={keluargaData}
         dataRiwayatPendidikan={pendidikanData}
-        dataJabatanFungsional={jafung}
-        dataInpasing={inpasing}
+        dataJabatanFungsional={jafungData}
+        dataInpasing={inpasingData}
         dataJabatanStruktural={jastru}
         dataPenempatan={penempatan}
         dataKendaraan={kendaraan}

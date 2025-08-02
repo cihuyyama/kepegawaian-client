@@ -24,7 +24,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { RiwayatPendidikanRow } from '@/types';
-import { Pencil, Trash2, ChevronRight, Download } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight, Download, File, FilePlus } from 'lucide-react';
 import { BASE_URL } from '@/constant/BaseURL';
 import { cn } from '@/lib/utils';
 
@@ -131,6 +131,13 @@ function RiwayatRow({
         {isAdmin && (
           <TableCell className="border px-4 py-2 text-center space-x-2">
             <div className="flex justify-center items-center space-x-2">
+              <Link
+                href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/dokumen/add?userId=${userId}`}
+              >
+                <Button size="icon" variant="ghost" title="Tambah Dokumen" >
+                  <FilePlus className="w-4 h-4 text-green-600" />
+                </Button>
+              </Link>
               <Link
                 href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/edit?userId=${userId}`}
               >
