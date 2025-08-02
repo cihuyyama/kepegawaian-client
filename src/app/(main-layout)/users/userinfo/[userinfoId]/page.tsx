@@ -45,6 +45,8 @@ export default function EditUserinfoPage() {
   const [dataAnggotaKeluarga, setDataAnggotaKeluarga] = useState<AnggotaKeluargaRow[]>([]);
   const [dataRiwayatPendidikan, setDataRiwayatPendidikan] = useState<RiwayatPendidikanRow[]>([]);
   const [dataJabatanFungsional, setDataJabatanFungsional] = useState<JabatanFungsionalRow[]>([]);
+  const [dataJabatanStruktural, setDataJabatanStruktural] = useState<JabatanStrukturalRow[]>([]);
+
   const [dataInpasing, setDataInpasing] = useState<InpasingRow[]>([]);
 
 
@@ -122,7 +124,6 @@ export default function EditUserinfoPage() {
 
 
   // Dummy data untuk DashboardInfo
-  const dataJabatanStruktural: JabatanStrukturalRow[] = [];
   const dataPenempatan: PenempatanRow[] = [];
   const dataKendaraan: KendaraanRow[] = [];
 
@@ -353,6 +354,42 @@ export default function EditUserinfoPage() {
       } catch (e: any) {
         console.error(e);
         toast.error(e.message || 'Gagal memuat inpasing');
+      }
+    })();
+  }, [rawData?.userId]);
+
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/jabatan-struktural/user/${rawData.userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat jabatan struktural');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+        const mapped: JabatanStrukturalRow[] = items
+          .filter(it => it.userId === rawData.userId)
+          .map(it => ({
+            id: it.id,
+            jabatanStruktural: it.namaJabatan,
+            sk: it.nomorSK,
+            periodeMenjabat: it.periodeMenjabat,
+            skPemberhentian: it.skPemberhentian || '-',
+            tmtPemberhentian: it.tmtPemberhentian
+              ? new Date(it.tmtPemberhentian).toISOString().split('T')[0]
+              : '-',
+            tunjanganTetap: it.tunjanganTetap,
+            tunjanganVariable: it.tunjanganVariabel,
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/jabatan-struktural/dokumen/${it.id}`
+              : undefined,
+          }));
+        setDataJabatanStruktural(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat jabatan struktural');
       }
     })();
   }, [rawData?.userId]);

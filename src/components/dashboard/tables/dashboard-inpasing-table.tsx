@@ -73,7 +73,7 @@ export function DashboardInpasingTable({
   // hapus record inpasing
   const handleDelete = async (id: string) => {
     try {
-      const res = await fetch(`${BASE_URL}/api/v1/inpasing/${id}`, {
+      const res = await fetch(`${BASE_URL}/inpasing/${id}`, {
         method: 'DELETE',
         credentials: 'include',
       });

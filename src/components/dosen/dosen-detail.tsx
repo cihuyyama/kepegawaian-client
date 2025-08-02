@@ -48,7 +48,8 @@ export function DosenDetail({
   const [keluargaData, setKeluargaData] = useState<AnggotaKeluargaRow[]>([]);
   const [pendidikanData, setPendidikanData] = useState<RiwayatPendidikanRow[]>([]);
   const [jafungData, setJafungData] = useState<JabatanFungsionalRow[]>([]);
-  const [inpasingData, setInpasingData] = useState<InpasingRow[]>([]);  // ← tambah state baru
+  const [inpasingData, setInpasingData] = useState<InpasingRow[]>([]);
+  const [jastruData, setJastruData] = useState<JabatanStrukturalRow[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -236,6 +237,44 @@ export function DosenDetail({
     })();
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/jabatan-struktural/user/${userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat jabatan struktural');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const mapped: JabatanStrukturalRow[] = items
+          .filter(it => it.userId === userId)
+          .map(it => ({
+            id: it.id,
+            jabatanStruktural: it.namaJabatan,
+            sk: it.nomorSK,
+            periodeMenjabat: it.periodeMenjabat,
+            skPemberhentian: it.skPemberhentian || '-',
+            tmtPemberhentian: it.tmtPemberhentian
+              ? new Date(it.tmtPemberhentian).toISOString().split('T')[0]
+              : '-',
+            tunjanganTetap: it.tunjanganTetap,
+            tunjanganVariable: it.tunjanganVariabel,
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/jabatan-struktural/dokumen/${it.id}`
+              : undefined,
+          }));
+        setJastruData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat jabatan struktural');
+      }
+    })();
+  }, [userId]);
+
+
 
   if (loading) {
     return (
@@ -256,7 +295,7 @@ export function DosenDetail({
         dataRiwayatPendidikan={pendidikanData}
         dataJabatanFungsional={jafungData}
         dataInpasing={inpasingData}
-        dataJabatanStruktural={jastru}
+        dataJabatanStruktural={jastruData}
         dataPenempatan={penempatan}
         dataKendaraan={kendaraan}
       />

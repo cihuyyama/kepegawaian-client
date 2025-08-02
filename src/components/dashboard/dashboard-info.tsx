@@ -203,7 +203,11 @@ export function DashboardInfo({
           </TabsContent>
 
           <TabsContent value="jabatanstruktural" className="pt-4">
-            <DashboardJabatanStrukturalTable data={dataJabatanStruktural} />
+            <DashboardJabatanStrukturalTable data={dataJabatanStruktural}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
+            />
           </TabsContent>
 
           <TabsContent value="penempatan" className="pt-4">
