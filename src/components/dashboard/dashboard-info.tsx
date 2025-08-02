@@ -219,7 +219,11 @@ export function DashboardInfo({
           </TabsContent>
 
           <TabsContent value="kendaraan" className="pt-4">
-            <DashboardKendaraanTable data={dataKendaraan} />
+            <DashboardKendaraanTable data={dataKendaraan}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
+            />
           </TabsContent>
 
         </Tabs>

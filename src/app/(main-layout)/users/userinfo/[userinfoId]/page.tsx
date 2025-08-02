@@ -48,10 +48,7 @@ export default function EditUserinfoPage() {
   const [dataJabatanStruktural, setDataJabatanStruktural] = useState<JabatanStrukturalRow[]>([]);
   const [dataInpasing, setDataInpasing] = useState<InpasingRow[]>([]);
   const [dataPenempatan, setDataPenempatan] = useState<PenempatanRow[]>([]);
-
-
-
-  // --- load data ---
+  const [dataKendaraan, setDataKendaraan] = useState<KendaraanRow[]>([]);
 
 
   // --- handlers ---
@@ -121,11 +118,6 @@ export default function EditUserinfoPage() {
       // fallback: biarkan saja
     }
   };
-
-
-
-  // Dummy data untuk DashboardInfo
-  const dataKendaraan: KendaraanRow[] = [];
 
   // 1) Fetch role & userinfo
   useEffect(() => {
@@ -433,6 +425,39 @@ export default function EditUserinfoPage() {
       } catch (e: any) {
         console.error(e);
         toast.error(e.message || 'Gagal memuat penempatan');
+      }
+    })();
+  }, [rawData?.userId]);
+
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/kendaraan/user/${rawData.userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat kendaraan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const mapped: KendaraanRow[] = items
+          .filter(it => it.userId === rawData.userId)
+          .map(it => ({
+            id: it.id,
+            namaPemilik: it.namaPemilik,
+            noKendaraan: it.nomorKendaraan ?? it.noKendaraan,
+            merek: it.merek,
+            jenis: it.jenis,
+            dokumen: it.dokumen
+              ? `${BASE_URL}/kendaraan/dokumen/${it.id}`
+              : undefined,
+            originalName: it.dokumen?.originalName,
+          }));
+
+        setDataKendaraan(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat kendaraan');
       }
     })();
   }, [rawData?.userId]);

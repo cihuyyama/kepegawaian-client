@@ -51,6 +51,7 @@ export function DosenDetail({
   const [inpasingData, setInpasingData] = useState<InpasingRow[]>([]);
   const [jastruData, setJastruData] = useState<JabatanStrukturalRow[]>([]);
   const [penempatanData, setPenempatanData] = useState<PenempatanRow[]>(penempatan || []);
+  const [kendaraanData, setKendaraanData] = useState<KendaraanRow[]>(kendaraan || []);
 
 
   const [loading, setLoading] = useState(true);
@@ -311,6 +312,35 @@ export function DosenDetail({
     })();
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/kendaraan/user/${userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat kendaraan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+        const mapped: KendaraanRow[] = items.map(it => ({
+          id: it.id,
+          namaPemilik: it.namaPemilik,
+          noKendaraan: it.nomorKendaraan,
+          merek: it.merek,
+          jenis: it.jenis,
+          originalName: it.dokumen?.originalName,
+          dokumen: it.dokumenId
+            ? `${BASE_URL}/kendaraan/dokumen/${it.id}`
+            : undefined,
+        }));
+        setKendaraanData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat kendaraan');
+      }
+    })();
+  }, [userId]);
+
 
 
   if (loading) {
@@ -334,7 +364,7 @@ export function DosenDetail({
         dataInpasing={inpasingData}
         dataJabatanStruktural={jastruData}
         dataPenempatan={penempatanData}
-        dataKendaraan={kendaraan}
+        dataKendaraan={kendaraanData}
       />
     </>
   );

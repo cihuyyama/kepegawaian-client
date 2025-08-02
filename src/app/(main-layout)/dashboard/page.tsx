@@ -26,10 +26,43 @@ import { DashboardProfileCard } from '@/components/dashboard/dashboard-profile-c
 export default function DashboardPage() {
   const [pegawai, setPegawai] = useState<Pegawai | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+
+  const [dataKepangkatan, setDataKepangkatan] = useState<KepangkatanRow[]>([]);
+  const [dataAnggotaKeluarga, setDataAnggotaKeluarga] = useState<AnggotaKeluargaRow[]>([]);
+  const [dataRiwayatPendidikan, setDataRiwayatPendidikan] = useState<RiwayatPendidikanRow[]>([]);
+  const [dataJabatanFungsional, setDataJabatanFungsional] = useState<JabatanFungsionalRow[]>([]);
+  const [dataInpasing, setDataInpasing] = useState<InpasingRow[]>([]);
+  const [dataJabatanStruktural, setDataJabatanStruktural] = useState<JabatanStrukturalRow[]>([]);
+  const [dataPenempatan, setDataPenempatan] = useState<PenempatanRow[]>([]);
+  const [dataKendaraan, setDataKendaraan] = useState<KendaraanRow[]>([]);
+
   const [loading, setLoading] = useState(true);
 
+  // helper tanggal
+  const fmtDDMMYYYY = (iso?: string) => {
+    if (!iso) return '-';
+    const d = new Date(iso);
+    const dd = String(d.getDate()).padStart(2, '0');
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  };
+
+  const toPublicUrl = (p?: string) => {
+    if (!p) return undefined;
+    // handle backslash Windows path → URL
+    const cleaned = p.split('public\\')[1]?.replace(/\\/g, '/')
+                ?? p.split('public/')[1];
+    return cleaned
+      ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
+      : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
+  };
+
+  // 1) Ambil access-token → profil dasar + role + userId
   useEffect(() => {
     const fetchPegawai = async () => {
+      setLoading(true);
       try {
         const res = await axios.get(`${BASE_URL}/users/access-token`, {
           withCredentials: true
@@ -37,7 +70,7 @@ export default function DashboardPage() {
 
         const data = res.data?.data;
         const info = data?.UserInfo || {};
-        const userId: string = data?.id;
+        const uid: string = data?.id;
 
         const pegawaiData: Pegawai = {
           nip: info.NIP ?? '-',
@@ -45,11 +78,11 @@ export default function DashboardPage() {
           gelarDepan: info.GelarDepan ?? '',
           gelarBelakang: info.GelarBelakang ?? '',
           jenisKelamin: info.JenisKelamin ?? '-',
-          agama: '-', // tidak ada di API
-          golonganDarah: '-', // tidak ada di API
+          agama: '-',                // tidak ada di API
+          golonganDarah: '-',        // tidak ada di API
           tempatLahir: info.TempatLahir ?? '-',
           tanggalLahir: info.TanggalLahir
-            ? new Date(info.TanggalLahir).toLocaleDateString('id-ID')
+            ? new Date(info.TanggalLahir).toISOString().split('T')[0]
             : '-',
           alamat: info.Alamat ?? '-',
           noHandphone: info.Phone ?? '-',
@@ -69,19 +102,20 @@ export default function DashboardPage() {
           jabatanFungsional: info.JabatanFungsional ?? '-',
 
           // Dokumen pakai builder
-          dokKtp: buildDoc(userId, 'KTP', info.KTP),
-          dokNbm: buildDoc(userId, 'DocNBM', info.DocNBM),
-          dokPassport: buildDoc(userId, 'Passport', info.Passport),
-          dokBpjsKesehatan: buildDoc(userId, 'BPJSKesehatan', info.BPJSKesehatan),
-          dokBpjsTenagakerja: buildDoc(userId, 'BPJSKetenagakerjaan', info.BPJSKetenagakerjaan),
-          dokSertifikasiDosen: buildDoc(userId, 'SertifikasiDosen', info.SertifikasiDosen),
-          dokNidn: buildDoc(userId, 'DocNIDN', info.DocNIDN),
+          dokKtp: buildDoc(uid, 'KTP', info.KTP),
+          dokNbm: buildDoc(uid, 'DocNBM', info.DocNBM),
+          dokPassport: buildDoc(uid, 'Passport', info.Passport),
+          dokBpjsKesehatan: buildDoc(uid, 'BPJSKesehatan', info.BPJSKesehatan),
+          dokBpjsTenagakerja: buildDoc(uid, 'BPJSKetenagakerjaan', info.BPJSKetenagakerjaan),
+          dokSertifikasiDosen: buildDoc(uid, 'SertifikasiDosen', info.SertifikasiDosen),
+          dokNidn: buildDoc(uid, 'DocNIDN', info.DocNIDN),
 
           imgUrl: data.imgUrl
         };
 
         setPegawai(pegawaiData);
         setUserRole(data.role || null);
+        setUserId(uid);
       } catch (error) {
         console.error('Gagal mengambil data pegawai:', error);
         setPegawai(null);
@@ -93,171 +127,201 @@ export default function DashboardPage() {
     fetchPegawai();
   }, []);
 
-  // -------- Contoh data dummy untuk tabel --------
-  const dataKepangkatan: KepangkatanRow[] = [
-    {
-      kepangkatan: 'Penata Muda (III/a)',
-      noSK: '820/123/2025',
-      tglSK: '01 Juni 2025',
-      tmt: '15 Juni 2025',
-      tglAkhirKontrak: '14 Juni 2026',
-      jenisSK: 'Kenaikan Pangkat',
-      gajiPokok: '3.020.000',
-      dokumenSK: '/dokumen/sk_pangkat_820-123-2025.pdf',
-      mulaiMasaKerja: true
-    }
-  ];
+  // 2) Setelah userId ada → fetch semua tabel paralel
+  useEffect(() => {
+    if (!userId) return;
 
-  const dataAnggotaKeluarga: AnggotaKeluargaRow[] = [
-    {
-      nama: 'Siti Aminah',
-      tempatLahir: 'Jakarta',
-      agama: 'Islam',
-      jenisKelamin: 'Perempuan',
-      nik: '3174123456789012',
-      pendidikan: 'S1',
-      hubunganKeluarga: 'Istri',
-      tunjanganBeras: '10 kg',
-      tunjanganKeluarga: 'Rp 500.000',
-      potonganAsuransi: 'Rp 50.000',
-      tanggunganPajak: 'Rp 100.000'
-    },
-    {
-      nama: 'Andi Santoso',
-      tempatLahir: 'Bandung',
-      agama: 'Kristen',
-      jenisKelamin: 'Laki-laki',
-      nik: '3275123456789013',
-      pendidikan: 'SMA',
-      hubunganKeluarga: 'Anak',
-      tunjanganBeras: '5 kg',
-      tunjanganKeluarga: 'Rp 250.000',
-      potonganAsuransi: 'Rp 25.000',
-      tanggunganPajak: 'Rp 50.000'
-    }
-  ];
+    (async () => {
+      try {
+        const [
+          kepRes,
+          kelRes,
+          pendRes,
+          jafRes,
+          inpRes,
+          jasRes,
+          penRes,
+          kenRes,
+        ] = await Promise.all([
+          // kepangkatan (semua user → filter)
+          fetch(`${BASE_URL}/kepangkatan`, { credentials: 'include' }),
+          // keluarga by user
+          fetch(`${BASE_URL}/keluargauser/${userId}`, { credentials: 'include' }),
+          // pendidikan by user
+          fetch(`${BASE_URL}/pendidikan/user/${userId}`, { credentials: 'include' }),
+          // jabatan fungsional (semua user → filter)
+          fetch(`${BASE_URL}/jabatan-fungsional`, { credentials: 'include' }),
+          // inpasing by user
+          fetch(`${BASE_URL}/inpasing/user/${userId}`, { credentials: 'include' }),
+          // jabatan struktural by user
+          fetch(`${BASE_URL}/jabatan-struktural/user/${userId}`, { credentials: 'include' }),
+          // penempatan by user
+          fetch(`${BASE_URL}/penempatan/user/${userId}`, { credentials: 'include' }),
+          // kendaraan by user
+          fetch(`${BASE_URL}/kendaraan/user/${userId}`, { credentials: 'include' }),
+        ]);
 
-  const dataRiwayatPendidikan: RiwayatPendidikanRow[] = [
-    {
-      pendidikan: 'S1 Teknik Informatika',
-      namaInstitusi: 'Universitas Indonesia',
-      tahunLulus: '2010',
-      dokumen: [
-        {
-          namaDokumen: 'Ijazah S1',
-          url: '/dokumen/ijazah_s1_teknik_informatika.pdf'
-        },
-        {
-          namaDokumen: 'Transkrip Nilai S1',
-          url: '/dokumen/transkrip_s1_teknik_informatika.pdf'
+        // --- Kepangkatan
+        if (kepRes.ok) {
+          const j = await kepRes.json();
+          const items: any[] = j.data || [];
+          const filtered = items.filter(it => it.userId === userId);
+          const mapped: KepangkatanRow[] = filtered.map(it => ({
+            id: it.id,
+            kepangkatan: it.nama,
+            noSK: it.NomorSK,
+            tglSK: fmtDDMMYYYY(it.TanggalSK),
+            tmt: fmtDDMMYYYY(it.TMT),
+            tglAkhirKontrak: it.TanggalAkhirKontrak ? fmtDDMMYYYY(it.TanggalAkhirKontrak) : '-',
+            jenisSK: it.JenisSK,
+            gajiPokok: it.GajiPokok,
+            docId: it.id,
+            originalName: it.DokumenSK?.originalName,
+            dokumenSK: it.DokumenSK?.path ? toPublicUrl(it.DokumenSK.path) : undefined,
+            mulaiMasaKerja: false,
+          }));
+          setDataKepangkatan(mapped);
         }
-      ]
-    },
-    {
-      pendidikan: 'SMA IPA',
-      namaInstitusi: 'SMA Negeri 1 Jakarta',
-      tahunLulus: '2006',
-      dokumen: [
-        {
-          namaDokumen: 'Ijazah SMA',
-          url: '/dokumen/ijazah_sma_ipa.pdf'
+
+        // --- Keluarga
+        if (kelRes.ok) {
+          const j = await kelRes.json();
+          const items: any[] = j.data || [];
+          const mapped: AnggotaKeluargaRow[] = items.map(it => ({
+            id: it.id,
+            nama: it.nama,
+            tempatLahir: it.tempatLahir,
+            agama: it.agama,
+            jenisKelamin: it.jenisKelamin,
+            nik: it.nik,
+            pendidikan: it.pendidikan,
+            hubunganKeluarga: it.hubunganKeluarga,
+            tunjanganBeras: it.tunjanganBeras,
+            tunjanganKeluarga: it.tunjanganKeluarga,
+            potonganAsuransi: it.potonganAsuransi,
+            tanggunganPajak: it.tanggunganPajak,
+          }));
+          setDataAnggotaKeluarga(mapped);
         }
-      ]
-    }
-  ];
 
-  const dataJabatanFungsional: JabatanFungsionalRow[] = [
-    {
-      jabatanFungsional: 'Asisten Ahli',
-      noSK: '820/789/2023',
-      tglSK: '05 Maret 2023',
-      tmt: '15 Maret 2023',
-      jenis: 'Kenaikan Jabatan',
-      angkaKredit: '150',
-      dokumenSK: '/dokumen/sk_jafung_820-789-2023.pdf'
-    },
-    {
-      jabatanFungsional: 'Lektor',
-      noSK: '820/101/2024',
-      tglSK: '20 Januari 2024',
-      tmt: '01 Februari 2024',
-      jenis: 'Penyesuaian Angka Kredit',
-      angkaKredit: '200',
-      dokumenSK: '/dokumen/sk_jafung_820-101-2024.pdf'
-    }
-  ];
+        // --- Pendidikan
+        if (pendRes.ok) {
+          const j = await pendRes.json();
+          const items: any[] = j.data || [];
+          const mapped: RiwayatPendidikanRow[] = items.map(it => ({
+            id: it.id,
+            userId: it.userId,
+            pendidikan: it.pendidikan,
+            namaInstitusi: it.namaInstitusi,
+            tahunLulus: String(it.tahunLulus),
+            dokumen: [], // backend belum kembalikan list dokumen pendidikan
+          }));
+          setDataRiwayatPendidikan(mapped);
+        }
 
-  const dataInpasing: InpasingRow[] = [
-    {
-      kepangkatan: 'Penata Muda (III/a)',
-      noSK: '123/INP/2023',
-      tglSK: '01 April 2023',
-      tmt: '15 April 2023',
-      dokumenSK: '/dokumen/inpasing_123_INP_2023.pdf'
-    },
-    {
-      kepangkatan: 'Penata Muda Tingkat I (III/b)',
-      noSK: '456/INP/2024',
-      tglSK: '20 Februari 2024',
-      tmt: '05 Maret 2024',
-      dokumenSK: '/dokumen/inpasing_456_INP_2024.pdf'
-    }
-  ];
+        // --- Jabatan Fungsional
+        if (jafRes.ok) {
+          const j = await jafRes.json();
+          const items: any[] = j.data || [];
+          const filtered = items.filter(it => it.userId === userId);
+          const mapped: JabatanFungsionalRow[] = filtered.map(it => ({
+            id: it.id,
+            jabatanFungsional: it.jabatanFungsional,
+            noSK: it.nomorSK,
+            tglSK: new Date(it.tanggalSK).toISOString().split('T')[0],
+            tmt: new Date(it.tmt).toISOString().split('T')[0],
+            jenis: it.jenis,
+            angkaKredit: it.angkaKredit,
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId ? `${BASE_URL}/jabatan-fungsional/documents/${it.id}` : undefined,
+          }));
+          setDataJabatanFungsional(mapped);
+        }
 
-  const dataJabatanStruktural: JabatanStrukturalRow[] = [
-    {
-      jabatanStruktural: 'Kepala Jurusan Teknik Informatika',
-      sk: '123/KPTS/2021',
-      periodeMenjabat: '15 Jan 2021 – 14 Jan 2024',
-      tunjanganTetap: '2.500.000',
-      tunjanganVariable: '500.000',
-      dokumenSK: '/dokumen/sk_kajur_123_KPTS_2021.pdf'
-    },
-    {
-      jabatanStruktural: 'Wakil Dekan Fakultas Teknik',
-      sk: '456/KPTS/2020',
-      periodeMenjabat: '01 Feb 2020 – 31 Jan 2023',
-      skPemberhentian: '789/KPTS/2023',
-      tmtPemberhentian: '01 Feb 2023',
-      tunjanganTetap: '2.000.000',
-      tunjanganVariable: '400.000',
-      dokumenSK: '/dokumen/sk_wadek_456_KPTS_2020.pdf'
-    }
-  ];
+        // --- Inpasing
+        if (inpRes.ok) {
+          const j = await inpRes.json();
+          const items: any[] = j.data || [];
+          const mapped: InpasingRow[] = items
+            .filter(it => it.userId === userId)
+            .map(it => ({
+              id: it.id,
+              kepangkatan: it.kepangkatan,
+              noSK: it.nomorSK,
+              tglSK: (it.tanggalSK || '').split('T')[0],
+              tmt: (it.tmt || '').split('T')[0],
+              originalName: it.dokumenSK?.originalName,
+              dokumenSK: it.dokumenSKId ? `${BASE_URL}/inpasing/dokumen/${it.id}` : undefined,
+            }));
+          setDataInpasing(mapped);
+        }
 
-  const dataPenempatan: PenempatanRow[] = [
-    {
-      unitKerja: 'Fakultas Teknik',
-      noSK: '001/SPT/2025',
-      tglSK: '01 Januari 2025',
-      tmt: '10 Januari 2025',
-      dokumenSK: '/dokumen/penempatan_001_SPT_2025.pdf'
-    },
-    {
-      unitKerja: 'Program Studi Informatika',
-      noSK: '002/SPT/2024',
-      tglSK: '15 Maret 2024',
-      tmt: '01 April 2024',
-      dokumenSK: '/dokumen/penempatan_002_SPT_2024.pdf'
-    }
-  ];
+        // --- Jabatan Struktural
+        if (jasRes.ok) {
+          const j = await jasRes.json();
+          const items: any[] = j.data || [];
+          const mapped: JabatanStrukturalRow[] = items
+            .filter(it => it.userId === userId)
+            .map(it => ({
+              id: it.id,
+              jabatanStruktural: it.namaJabatan,
+              sk: it.nomorSK,
+              periodeMenjabat: it.periodeMenjabat,
+              skPemberhentian: it.skPemberhentian || '-',
+              tmtPemberhentian: it.tmtPemberhentian ? new Date(it.tmtPemberhentian).toISOString().split('T')[0] : '-',
+              tunjanganTetap: it.tunjanganTetap,
+              tunjanganVariable: it.tunjanganVariabel,
+              originalName: it.dokumenSK?.originalName,
+              dokumenSK: it.dokumenSKId ? `${BASE_URL}/jabatan-struktural/dokumen/${it.id}` : undefined,
+            }));
+          setDataJabatanStruktural(mapped);
+        }
 
-  const dataKendaraan: KendaraanRow[] = [
-    {
-      namaPemilik: 'Budi Santoso',
-      noKendaraan: 'B 1234 XYZ',
-      merek: 'Toyota Avanza',
-      jenis: 'Mobil',
-      dokumen: '/dokumen/ktp_kendaraan_budi.pdf'
-    },
-    {
-      namaPemilik: 'Siti Aminah',
-      noKendaraan: 'D 5678 ABC',
-      merek: 'Honda Beat',
-      jenis: 'Motor',
-      dokumen: '/dokumen/ktp_kendaraan_siti.pdf'
-    }
-  ];
+        // --- Penempatan
+        if (penRes.ok) {
+          const j = await penRes.json();
+          const items: any[] = j.data || [];
+          const mapped: PenempatanRow[] = items
+            .filter(it => it.userId === userId)
+            .map(it => ({
+              id: it.id,
+              unitKerja: it.unitKerja,
+              noSK: it.nomorSK ?? it.NomorSK,
+              tglSK: (it.tanggalSK || '').split('T')[0],
+              tmt: (it.tmt || '').split('T')[0],
+              originalName: it.dokumenSK?.originalName,
+              dokumenSK: it.dokumenSKId ? `${BASE_URL}/penempatan/dokumen/${it.id}` : undefined,
+            }));
+          setDataPenempatan(mapped);
+        }
+
+        // --- Kendaraan
+        if (kenRes.ok) {
+          const j = await kenRes.json();
+          const items: any[] = j.data || [];
+          const mapped: KendaraanRow[] = items
+            .filter(it => it.userId === userId)
+            .map(it => ({
+              id: it.id,
+              namaPemilik: it.namaPemilik,
+              noKendaraan: it.nomorKendaraan ?? it.noKendaraan,
+              merek: it.merek,
+              jenis: it.jenis,
+              dokumen: it.dokumen?.path
+                ? toPublicUrl(it.dokumen.path)                         // jika back-end kirim path
+                : (it.dokumenId || it.dokumen?.id)
+                  ? `${BASE_URL}/kendaraan/dokumen/${it.id}`          // jika ada endpoint download
+                  : undefined,
+              originalName: it.dokumen?.originalName,
+            }));
+          setDataKendaraan(mapped);
+        }
+      } catch (e) {
+        // cukup log; DashboardInfo tetap tampil dengan data yang berhasil diisi
+        console.error('Gagal memuat sebagian data dashboard:', e);
+      }
+    })();
+  }, [userId]);
 
   return (
     <ContentLayout title="Dashboard">

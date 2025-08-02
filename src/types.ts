@@ -132,10 +132,12 @@ export interface PenempatanRow {
 }
 
 export interface KendaraanRow {
+  id: string;
   namaPemilik: string;
   noKendaraan: string;
   merek: string;
   jenis: string;
+  originalName?: string;
   dokumen?: string;  // URL/path ke dokumen kendaraan
 }
 
