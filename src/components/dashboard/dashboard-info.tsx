@@ -58,7 +58,7 @@ export function DashboardInfo({
     | 'jabatanfungsional'
     | 'inpasing'
     | 'jabatanstruktural'
-    | 'pelatihan'
+    // | 'pelatihan'
     | 'penempatan'
     | 'kendaraan'
   >('kepangkatan');
@@ -71,7 +71,7 @@ export function DashboardInfo({
     jabatanfungsional: 'jabatanfungsional',
     inpasing: 'inpasing',
     jabatanstruktural: 'jabatanstruktural',
-    pelatihan: 'pelatihan',
+    // pelatihan: 'pelatihan',
     penempatan: 'penempatan',
     kendaraan: 'kendaraan',
   };
@@ -109,7 +109,7 @@ export function DashboardInfo({
             <option value="jabatanfungsional">Jabatan Fungsional</option>
             <option value="inpasing">Inpasing</option>
             <option value="jabatanstruktural">Jabatan Struktural</option>
-            <option value="pelatihan">Pelatihan</option>
+            {/* <option value="pelatihan">Pelatihan</option> */}
             <option value="penempatan">Penempatan</option>
             <option value="kendaraan">Kendaraan</option>
           </select>
@@ -125,14 +125,14 @@ export function DashboardInfo({
               | 'jabatanfungsional'
               | 'inpasing'
               | 'jabatanstruktural'
-              | 'pelatihan'
+              // | 'pelatihan'
               | 'penempatan'
               | 'kendaraan')
           }
           className="w-full"
         >
           {/* Tabs untuk desktop */}
-          <TabsList className="hidden md:grid grid-cols-9 gap-1 mb-4">
+          <TabsList className="hidden md:grid grid-cols-8 gap-1 mb-4">
             <TabsTrigger value="kepangkatan">Kepangkatan</TabsTrigger>
             <TabsTrigger value="anggotakeluarga">
               Anggota Keluarga
@@ -149,9 +149,9 @@ export function DashboardInfo({
             <TabsTrigger value="jabatanstruktural">
               Jabatan Struktural
             </TabsTrigger>
-            <TabsTrigger value="pelatihan">
+            {/* <TabsTrigger value="pelatihan">
               Pelatihan
-            </TabsTrigger>
+            </TabsTrigger> */}
             <TabsTrigger value="penempatan">
               Penempatan
             </TabsTrigger>
