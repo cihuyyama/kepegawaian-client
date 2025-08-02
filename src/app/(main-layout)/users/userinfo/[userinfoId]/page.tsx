@@ -46,8 +46,9 @@ export default function EditUserinfoPage() {
   const [dataRiwayatPendidikan, setDataRiwayatPendidikan] = useState<RiwayatPendidikanRow[]>([]);
   const [dataJabatanFungsional, setDataJabatanFungsional] = useState<JabatanFungsionalRow[]>([]);
   const [dataJabatanStruktural, setDataJabatanStruktural] = useState<JabatanStrukturalRow[]>([]);
-
   const [dataInpasing, setDataInpasing] = useState<InpasingRow[]>([]);
+  const [dataPenempatan, setDataPenempatan] = useState<PenempatanRow[]>([]);
+
 
 
   // --- load data ---
@@ -124,7 +125,6 @@ export default function EditUserinfoPage() {
 
 
   // Dummy data untuk DashboardInfo
-  const dataPenempatan: PenempatanRow[] = [];
   const dataKendaraan: KendaraanRow[] = [];
 
   // 1) Fetch role & userinfo
@@ -390,6 +390,49 @@ export default function EditUserinfoPage() {
       } catch (e: any) {
         console.error(e);
         toast.error(e.message || 'Gagal memuat jabatan struktural');
+      }
+    })();
+  }, [rawData?.userId]);
+
+  useEffect(() => {
+    if (!rawData?.userId) return;
+    (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}/penempatan/user/${rawData.userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat penempatan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const fmt = (iso?: string) => {
+          if (!iso) return '-';
+          const d = new Date(iso);
+          const dd = String(d.getDate()).padStart(2, '0');
+          const mm = String(d.getMonth() + 1).padStart(2, '0');
+          const yyyy = d.getFullYear();
+          return `${dd}-${mm}-${yyyy}`;
+        };
+
+        const mapped: PenempatanRow[] = items
+          .filter(it => it.userId === rawData.userId) // jika endpoint sudah filter by userId, baris ini opsional
+          .map(it => ({
+            id: it.id,
+            unitKerja: it.unitKerja,
+            noSK: it.nomorSK ?? it.NomorSK,
+            tglSK: fmt(it.tanggalSK ?? it.TanggalSK),
+            tmt: fmt(it.tmt ?? it.TMT),
+            // jika API kembalikan path file langsung:
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/penempatan/dokumen/${it.id}`
+              : undefined,
+          }));
+
+        setDataPenempatan(mapped);
+      } catch (e: any) {
+        console.error(e);
+        toast.error(e.message || 'Gagal memuat penempatan');
       }
     })();
   }, [rawData?.userId]);

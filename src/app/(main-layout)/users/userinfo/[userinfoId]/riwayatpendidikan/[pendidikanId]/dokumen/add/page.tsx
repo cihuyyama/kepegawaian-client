@@ -36,7 +36,7 @@ export default function AddDokumenRiwayatPendidikanPage() {
       form.append('namaDokumen', namaDokumen);
       form.append('file', file);
 
-      const res = await fetch(`${BASE_URL}/pendidikan/dokumen`, {
+      const res = await fetch(`${BASE_URL}/pendidikan/dokumen/${pendidikanId}`, {
         method: 'POST',
         credentials: 'include',
         body: form,

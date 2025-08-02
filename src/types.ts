@@ -122,10 +122,12 @@ export interface JabatanStrukturalRow {
 }
 
 export interface PenempatanRow {
+  id: string;
   unitKerja: string;
   noSK: string;
   tglSK: string;       // e.g. 'DD MMMM YYYY'
-  tmt: string;         // tanggal mulai tugas
+  tmt: string;      
+  originalName?: string;    
   dokumenSK?: string;  // URL atau path file SK
 }
 

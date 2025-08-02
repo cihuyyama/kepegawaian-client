@@ -50,6 +50,8 @@ export function DosenDetail({
   const [jafungData, setJafungData] = useState<JabatanFungsionalRow[]>([]);
   const [inpasingData, setInpasingData] = useState<InpasingRow[]>([]);
   const [jastruData, setJastruData] = useState<JabatanStrukturalRow[]>([]);
+  const [penempatanData, setPenempatanData] = useState<PenempatanRow[]>(penempatan || []);
+
 
   const [loading, setLoading] = useState(true);
 
@@ -274,6 +276,41 @@ export function DosenDetail({
     })();
   }, [userId]);
 
+  useEffect(() => {
+    if (!userId) return;
+    (async () => {
+      try {
+        // asumsi endpoint
+        const res = await fetch(`${BASE_URL}/penempatan/user/${userId}`, {
+          credentials: 'include',
+        });
+        if (!res.ok) throw new Error('Gagal memuat penempatan');
+        const json = await res.json();
+        const items: any[] = json.data || [];
+
+        const mapped: PenempatanRow[] = items
+          .filter(it => it.userId === userId) // aman meski endpoint sudah filter
+          .map(it => ({
+            id: it.id,
+            unitKerja: it.unitKerja,
+            noSK: it.nomorSK ?? it.NomorSK,
+            tglSK: it.tanggalSK.split('T')[0],
+            tmt: it.tmt.split('T')[0],
+            // jika API kembalikan path file langsung:
+            originalName: it.dokumenSK?.originalName,
+            dokumenSK: it.dokumenSKId
+              ? `${BASE_URL}/penempatan/dokumen/${it.id}`
+              : undefined,
+          }));
+
+        setPenempatanData(mapped);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Gagal memuat penempatan');
+      }
+    })();
+  }, [userId]);
+
 
 
   if (loading) {
@@ -296,7 +333,7 @@ export function DosenDetail({
         dataJabatanFungsional={jafungData}
         dataInpasing={inpasingData}
         dataJabatanStruktural={jastruData}
-        dataPenempatan={penempatan}
+        dataPenempatan={penempatanData}
         dataKendaraan={kendaraan}
       />
     </>

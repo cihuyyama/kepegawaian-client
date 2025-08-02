@@ -23,7 +23,7 @@ import { DashboardRiwayatPendidikanTable } from './tables/dashboard-riwayat-pend
 import { DashboardJabatanFungsionalTable } from './tables/dashboard-jabatan-fungsional-table';
 import { DashboardInpasingTable } from './tables/dashboard-inpasing-table';
 import { DashboardJabatanStrukturalTable } from './tables/dashboard-jabatan-struktural-table';
-import { DashboardPenempatanTable } from './tables/dashbaord-penempatan-table';
+import { DashboardPenempatanTable } from './tables/dashboard-penempatan-table';
 import { DashboardKendaraanTable } from './tables/dashboard-kendaraan-table';
 
 export function DashboardInfo({
@@ -211,7 +211,11 @@ export function DashboardInfo({
           </TabsContent>
 
           <TabsContent value="penempatan" className="pt-4">
-            <DashboardPenempatanTable data={dataPenempatan} />
+            <DashboardPenempatanTable data={dataPenempatan}
+              role={role}
+              userinfoId={userinfoId!}
+              userId={userId!}
+            />
           </TabsContent>
 
           <TabsContent value="kendaraan" className="pt-4">
