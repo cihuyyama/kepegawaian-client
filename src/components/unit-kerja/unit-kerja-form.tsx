@@ -1,3 +1,4 @@
+// src/components/unit-kerja/unit-kerja-form.tsx
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -19,7 +20,7 @@ type UnitKerjaFormProps = {
   currentUnitId?: string;
 };
 
-type User = { id: string; username: string; email: string };
+type User = { id: string; username: string; email: string; role: string | null };
 type UnitKerja = { id: string; kepalaUnitKerjaId: string | null };
 
 const NONE = '__none__';
@@ -38,7 +39,7 @@ export function UnitKerjaForm({
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [openAnggota, setOpenAnggota] = useState(false);
 
-  // Hanya update state saat initialValues berubah dari luar (mode edit)
+  // Sinkron state saat mode edit
   useEffect(() => {
     if (initialValues) setForm(initialValues);
   }, [initialValues]);
@@ -47,14 +48,32 @@ export function UnitKerjaForm({
     (async () => {
       try {
         setLoadingUsers(true);
-        const [resUsers, resUnits] = await Promise.all([
-          fetch(`${BASE_URL}/users`, { credentials: 'include' }),
+
+        // Ganti: /users -> /userinfo
+        const [resUserinfo, resUnits] = await Promise.all([
+          fetch(`${BASE_URL}/userinfo`, { credentials: 'include' }),
           fetch(`${BASE_URL}/unit-kerja`, { credentials: 'include' }),
         ]);
-        const jsonUsers = await resUsers.json();
+
+        const jsonUserinfo = await resUserinfo.json();
         const jsonUnits = await resUnits.json();
-        setUsers(jsonUsers.data || []);
-        setUnits(jsonUnits.data || []);
+
+        // Normalisasi: kita butuh id (user.id), username, email, role
+        const fromUserinfo: User[] = (jsonUserinfo?.data || [])
+          .map((ui: any) => {
+            const u = ui?.user;
+            if (!u) return null;
+            return {
+              id: String(u.id),
+              username: u.username ?? '(tanpa nama)',
+              email: u.email ?? '-',
+              role: (u.role ?? null) as string | null,
+            };
+          })
+          .filter(Boolean);
+
+        setUsers(fromUserinfo as User[]);
+        setUnits(jsonUnits?.data || []);
       } catch (e) {
         console.error('Gagal mengambil data:', e);
       } finally {
@@ -63,6 +82,19 @@ export function UnitKerjaForm({
     })();
   }, []);
 
+  // Kepala: hanya KAPRODI
+  const kaprodiUsers = useMemo(
+    () => users.filter((u) => (u.role ?? '').toLowerCase() === 'kaprodi'),
+    [users]
+  );
+
+  // Anggota: hanya DOSEN
+  const dosenUsers = useMemo(
+    () => users.filter((u) => (u.role ?? '').toLowerCase() === 'dosen'),
+    [users]
+  );
+
+  // Toggle anggota
   const toggleAnggota = (id: string) =>
     setForm((prev) => ({
       ...prev,
@@ -73,6 +105,7 @@ export function UnitKerjaForm({
 
   const clearAnggota = () => setForm((p) => ({ ...p, anggota: [] }));
 
+  // Cegah kepala ganda di unit lain (tetap periksa id user, bukan userinfo)
   const takenHeads = useMemo(
     () =>
       new Set(
@@ -90,6 +123,7 @@ export function UnitKerjaForm({
     <form
       onSubmit={(e) => {
         e.preventDefault();
+        // Penting: kepalaUnitKerjaId & anggota yang dikirim adalah user.id
         onSubmit(form);
       }}
       className="space-y-4"
@@ -104,6 +138,7 @@ export function UnitKerjaForm({
         />
       </div>
 
+      {/* Kepala: hanya kaprodi */}
       <div>
         <label className="block text-sm font-medium mb-1">Kepala Unit Kerja (opsional)</label>
         <Select
@@ -111,29 +146,33 @@ export function UnitKerjaForm({
           onValueChange={(v) => setForm({ ...form, kepalaUnitKerjaId: v === NONE ? null : v })}
         >
           <SelectTrigger className="w-full" disabled={loadingUsers}>
-            <SelectValue placeholder={loadingUsers ? 'Memuat...' : 'Pilih user'} />
+            <SelectValue placeholder={loadingUsers ? 'Memuat...' : 'Pilih kaprodi'} />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value={NONE}>(Kosongkan)</SelectItem>
-            {users.map((u) => (
+            {kaprodiUsers.map((u) => (
               <SelectItem key={u.id} value={u.id} disabled={isDisabledHead(u.id)}>
                 {u.username} — {u.email}
                 {isDisabledHead(u.id) && ' (sudah kepala di unit lain)'}
               </SelectItem>
             ))}
+            {!kaprodiUsers.length && (
+              <div className="px-3 py-2 text-xs text-gray-500">Tidak ada user ber-role kaprodi.</div>
+            )}
           </SelectContent>
         </Select>
       </div>
 
+      {/* Anggota: hanya dosen */}
       <div>
         <label className="block text-sm font-medium mb-1">Anggota (opsional)</label>
         <Popover open={openAnggota} onOpenChange={setOpenAnggota}>
           <PopoverTrigger asChild>
             <Button type="button" variant="outline" className="justify-between w-full" disabled={loadingUsers}>
-              {form.anggota.length > 0 ? `${form.anggota.length} dipilih` : loadingUsers ? 'Memuat...' : 'Pilih anggota'}
+              {form.anggota.length > 0 ? `${form.anggota.length} dipilih` : loadingUsers ? 'Memuat...' : 'Pilih anggota (dosen)'}
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="p-0 w-[280px]" align="start">
+          <PopoverContent className="p-0 w-[320px]" align="start">
             <div className="flex items-center justify-between px-2 py-1 border-b">
               <span className="text-xs text-gray-500">{form.anggota.length} dipilih</span>
               {form.anggota.length > 0 && (
@@ -142,9 +181,9 @@ export function UnitKerjaForm({
                 </Button>
               )}
             </div>
-            <ScrollArea className="h-64">
+            <ScrollArea className="h-72">
               <div className="p-2 space-y-1">
-                {users.map((u) => {
+                {dosenUsers.map((u) => {
                   const checked = form.anggota.includes(u.id);
                   return (
                     <label
@@ -152,10 +191,16 @@ export function UnitKerjaForm({
                       className="flex items-center gap-2 px-2 py-1 rounded hover:bg-gray-50 cursor-pointer"
                     >
                       <Checkbox checked={checked} onCheckedChange={() => toggleAnggota(u.id)} />
-                      <span className="text-sm">{u.username}</span>
+                      <div className="flex flex-col">
+                        <span className="text-sm">{u.username}</span>
+                        <span className="text-xs text-gray-500">{u.email}</span>
+                      </div>
                     </label>
                   );
                 })}
+                {!dosenUsers.length && (
+                  <div className="px-3 py-2 text-xs text-gray-500">Tidak ada user ber-role dosen.</div>
+                )}
               </div>
             </ScrollArea>
           </PopoverContent>

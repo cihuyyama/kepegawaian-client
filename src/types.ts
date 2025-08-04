@@ -83,7 +83,9 @@ export interface RiwayatPendidikanRow {
   pendidikan: string;
   namaInstitusi: string;
   tahunLulus: string;      // misal '2023'
-  dokumen: DokumenRow[];   // daftar dokumen terkait ijazah, transkrip, dsb.
+  dokumen: DokumenRow[
+
+  ];  
 }
 
 export interface JabatanFungsionalRow {

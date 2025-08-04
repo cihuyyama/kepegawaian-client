@@ -74,19 +74,23 @@ export function Sidebar() {
           variant="link"
           asChild
         >
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <PanelsTopLeft className="w-6 h-6 mr-1" />
+            <Link href="/dashboard" className="flex items-center gap-2">
+            <img 
+              src="/img/unipol.jpeg" 
+              alt="Logo SIM Kepegawaian" 
+              className="w-8 h-8 object-contain" 
+            />
             <h1
               className={cn(
-                "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
-                !getOpenState()
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100"
+              "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
+              !getOpenState()
+                ? "-translate-x-96 opacity-0 hidden"
+                : "translate-x-0 opacity-100"
               )}
             >
               SIM Kepegawaian
             </h1>
-          </Link>
+            </Link>
         </Button>
         {/* ✅ Kirim role hasil dari API ke komponen Menu */}
         <Menu isOpen={getOpenState()} role={role} />

@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,7 +24,7 @@ import {
   TableCell,
 } from '@/components/ui/table';
 import { RiwayatPendidikanRow } from '@/types';
-import { Pencil, Trash2, ChevronRight, Download, File, FilePlus } from 'lucide-react';
+import { Pencil, Trash2, ChevronRight, Download, FilePlus } from 'lucide-react';
 import { BASE_URL } from '@/constant/BaseURL';
 import { cn } from '@/lib/utils';
 
@@ -43,6 +43,26 @@ export function DashboardRiwayatPendidikanTable({
 }: Props) {
   const [rows, setRows] = useState<RiwayatPendidikanRow[]>(data);
   useEffect(() => setRows(data), [data]);
+
+  // === download dokumen (pakai fetch + credentials) ===
+  const handleDownload = useCallback(async (url: string, filename: string) => {
+    try {
+      const res = await fetch(url, { credentials: 'include' });
+      if (!res.ok) throw new Error('Gagal mengunduh dokumen');
+      const blob = await res.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename || 'dokumen';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.message || 'Download gagal');
+    }
+  }, []);
 
   const handleDelete = async (id: string) => {
     try {
@@ -81,6 +101,7 @@ export function DashboardRiwayatPendidikanTable({
             key={row.id}
             row={row}
             onDelete={handleDelete}
+            onDownload={handleDownload}
             userinfoId={userinfoId}
             userId={userId}
             isAdmin={role === 'admin'}
@@ -94,6 +115,7 @@ export function DashboardRiwayatPendidikanTable({
 interface RiwayatRowProps {
   row: RiwayatPendidikanRow;
   onDelete: (id: string) => void;
+  onDownload: (url: string, filename: string) => void;
   userinfoId: string;
   userId: string;
   isAdmin: boolean;
@@ -102,6 +124,7 @@ interface RiwayatRowProps {
 function RiwayatRow({
   row,
   onDelete,
+  onDownload,
   userinfoId,
   userId,
   isAdmin,
@@ -180,21 +203,37 @@ function RiwayatRow({
             <Table className="w-full table-auto">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="border px-3 py-1 bg-gray-50">Dokumen</TableHead>
-                  <TableHead className="border px-3 py-1 bg-gray-50">Unduh</TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Dokumen</TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Unduh</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {row.dokumen.map((d, i) => (
-                  <TableRow key={i}>
-                    <TableCell className="border px-3 py-1">{d.namaDokumen}</TableCell>
-                    <TableCell className="border px-3 py-1 text-center">
-                      <a href={d.url} download>
-                        <Download className="w-4 h-4 text-blue-500" />
-                      </a>
+                {row.dokumen.length ? (
+                  row.dokumen.map((d, i) => {
+                    const filename = d.namaDokumen?.trim() || 'dokumen';
+                    return (
+                      <TableRow key={i}>
+                        <TableCell className="border px-3 py-1">{filename}</TableCell>
+                        <TableCell className="border px-3 py-1 text-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => onDownload(d.url, filename)}
+                            title="Unduh dokumen"
+                          >
+                            <Download className="w-4 h-4 text-blue-500" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })
+                ) : (
+                  <TableRow>
+                    <TableCell className="border px-3 py-2 text-gray-500" colSpan={2}>
+                      Tidak ada dokumen
                     </TableCell>
                   </TableRow>
-                ))}
+                )}
               </TableBody>
             </Table>
           </TableCell>

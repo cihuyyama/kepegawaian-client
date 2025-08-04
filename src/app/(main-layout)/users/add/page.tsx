@@ -1,3 +1,4 @@
+// src/app/(main-layout)/users/add/page.tsx
 'use client';
 
 import { useState } from "react";
@@ -16,9 +17,9 @@ export default function CreateUserPage() {
   const handleCreate = async (formData: {
     name: string;
     email: string;
-    prodi: string;
     password: string;
     role: string;
+    prodi: string; // <- ID prodi yang dipilih
   }) => {
     try {
       setLoading(true);
@@ -27,8 +28,11 @@ export default function CreateUserPage() {
         username: formData.name,
         email: formData.email,
         password: formData.password,
-        role: formData.role, // "admin" | "dosen" | "kaprodi"
-        // userinfo & unitKerjaId tidak dikirim karena opsional
+        role: formData.role,                 // "admin" | "dosen" | "kaprodi"
+        unitKerjaId: formData.prodi || undefined, // <- kirim ID prodi ke server
+        userinfo: {
+          Phone: "08", // <- isi otomatis
+        },
       };
 
       const res = await fetch(`${BASE_URL}/auth/register`, {
@@ -38,7 +42,7 @@ export default function CreateUserPage() {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
+        const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData?.message || "Gagal menyimpan data");
       }
 

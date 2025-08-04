@@ -254,14 +254,37 @@ export default function EditUserinfoPage() {
         const json = await res.json();
         const items: any[] = json.data || [];
 
-        const mapped: RiwayatPendidikanRow[] = items.map(it => ({
-          id: it.id,
-          userId: it.userId,
-          pendidikan: it.pendidikan,
-          namaInstitusi: it.namaInstitusi,
-          tahunLulus: String(it.tahunLulus),
-          dokumen: [], // API belum kembalikan dokumen, jadi kosong saja
-        }));
+        const toPublicUrl = (p?: string) => {
+          if (!p) return undefined;
+          // ambil bagian setelah folder "public" dan ganti backslash → slash
+          const cleaned =
+            p.split('public\\')[1]?.replace(/\\/g, '/') ??
+            p.split('public/')[1];
+          return cleaned
+            ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
+            : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
+        };
+
+        const mapped: RiwayatPendidikanRow[] = items.map(it => {
+          const rel = it.DokumenRiwayatPendidikan;
+          const file = rel?.dokumen;
+          const docs = file
+            ? [{
+              namaDokumen: rel?.namaDokumen || file.originalName || file.filename,
+              url: toPublicUrl(file.path)!,
+            }]
+            : [];
+
+          return {
+            id: it.id,
+            userId: it.userId,
+            pendidikan: it.pendidikan,
+            namaInstitusi: it.namaInstitusi,
+            tahunLulus: String(it.tahunLulus),
+            dokumen: docs,
+          };
+        });
+
         setDataRiwayatPendidikan(mapped);
       } catch (e: any) {
         console.error(e);
@@ -272,33 +295,24 @@ export default function EditUserinfoPage() {
 
   useEffect(() => {
     if (!rawData?.userId) return;
+
     (async () => {
       try {
         const res = await fetch(
-          `${BASE_URL}/jabatan-fungsional`,
+          `${BASE_URL}/jabatan-fungsional/user/${rawData.userId}`,
           { credentials: 'include' }
         );
         if (!res.ok) throw new Error('Gagal memuat jabatan fungsional');
+
         const json = await res.json();
         const items: any[] = json.data || [];
 
-        const fmt = (iso: string) => {
-          const d = new Date(iso);
-          const dd = String(d.getDate()).padStart(2, '0');
-          const mm = String(d.getMonth() + 1).padStart(2, '0');
-          const yyyy = d.getFullYear();
-          return `${dd}-${mm}-${yyyy}`;
-        };
-
-        // filter hanya milik current user
-        const filtered = items.filter(it => it.userId === rawData.userId);
-
-        const mapped: JabatanFungsionalRow[] = filtered.map(it => ({
+        const mapped: JabatanFungsionalRow[] = items.map(it => ({
           id: it.id,
           jabatanFungsional: it.jabatanFungsional,
           noSK: it.nomorSK,
-          tglSK: fmt(it.tanggalSK),
-          tmt: fmt(it.tmt),
+          tglSK: new Date(it.tanggalSK).toISOString().split('T')[0],
+          tmt: new Date(it.tmt).toISOString().split('T')[0],
           jenis: it.jenis,
           angkaKredit: it.angkaKredit,
           originalName: it.dokumenSK?.originalName,
@@ -314,6 +328,7 @@ export default function EditUserinfoPage() {
       }
     })();
   }, [rawData?.userId]);
+
 
   useEffect(() => {
     if (!rawData?.userId) return;

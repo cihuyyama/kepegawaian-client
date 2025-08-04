@@ -71,7 +71,7 @@ export function getMenuList(pathname: string, role: string): Group[] {
 
   switch (role) {
     case "admin":
-      return [dashboard,dosen, admin]; // ⛔ Dashboard TIDAK dikembalikan untuk admin
+      return [ admin]; // ⛔ Dashboard TIDAK dikembalikan untuk admin
     case "dosen":
       return [dashboard]; // ✅ hanya dosen yang melihat Dashboard\
     case "kaprodi":

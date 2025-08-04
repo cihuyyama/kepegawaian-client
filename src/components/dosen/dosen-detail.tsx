@@ -157,14 +157,31 @@ export function DosenDetail({
         if (!res.ok) throw new Error('Gagal memuat riwayat pendidikan');
         const json = await res.json();
         const items: any[] = json.data || [];
-        const mapped: RiwayatPendidikanRow[] = items.map(it => ({
-          id: it.id,
-          userId: it.userId,
-          pendidikan: it.pendidikan,
-          namaInstitusi: it.namaInstitusi,
-          tahunLulus: String(it.tahunLulus),
-          dokumen: [], // jika endpoint dokumen belum ada
-        }));
+
+        const mapped: RiwayatPendidikanRow[] = items.map(it => {
+          const rel = it.DokumenRiwayatPendidikan; // gunakan relasi ini
+          const docs = rel
+            ? [{
+              namaDokumen:
+                rel.namaDokumen ||
+                rel.dokumen?.originalName ||
+                rel.dokumen?.filename ||
+                'Dokumen',
+              // pakai id DokumenRiwayatPendidikan untuk endpoint download
+              url: `${BASE_URL}/pendidikan/dokumen/${rel.id}`,
+            }]
+            : [];
+
+          return {
+            id: it.id,
+            userId: it.userId,
+            pendidikan: it.pendidikan,
+            namaInstitusi: it.namaInstitusi,
+            tahunLulus: String(it.tahunLulus),
+            dokumen: docs,
+          };
+        });
+
         setPendidikanData(mapped);
       } catch (err: any) {
         console.error(err);
@@ -172,7 +189,6 @@ export function DosenDetail({
       }
     })();
   }, [userId]);
-
 
   useEffect(() => {
     if (!userId) return;
