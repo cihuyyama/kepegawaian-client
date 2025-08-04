@@ -270,7 +270,8 @@ export default function EditUserinfoPage() {
           const file = rel?.dokumen;
           const docs = file
             ? [{
-              namaDokumen: rel?.namaDokumen || file.originalName || file.filename,
+              id: rel.id,    // <-- tambahkan ini
+              namaDokumen: rel.namaDokumen || file.originalName || file.filename,
               url: toPublicUrl(file.path)!,
             }]
             : [];
@@ -963,7 +964,7 @@ export const mapDocToPegawai = (
   switch (t) {
     case 'KTP':
       return { dokKtp: doc };
-   
+
     case 'DocNIDN':
       return { dokNidn: doc };
     case 'SertifikasiDosen':

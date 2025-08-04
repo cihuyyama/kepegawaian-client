@@ -71,19 +71,19 @@ export interface AnggotaKeluargaRow {
 }
 
 export interface DokumenRow {
+  /** ID dokumen yang dikirim backend */
+  id: string;
   namaDokumen: string;
-  url: string;      // URL/file path untuk download
+  url: string;    // tidak digunakan langsung untuk download
 }
 
 export interface RiwayatPendidikanRow {
-  id: string;
+  id: string;           // pendidikanId
   userId: string;
   pendidikan: string;
   namaInstitusi: string;
-  tahunLulus: string;      // misal '2023'
-  dokumen: DokumenRow[
-
-  ];  
+  tahunLulus: string;
+  dokumen: DokumenRow[];
 }
 
 export interface JabatanFungsionalRow {

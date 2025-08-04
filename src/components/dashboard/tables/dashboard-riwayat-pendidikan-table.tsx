@@ -1,3 +1,4 @@
+// src/components/dashboard/tables/dashboard-riwayat-pendidikan-table.tsx
 'use client';
 
 import Link from 'next/link';
@@ -23,7 +24,7 @@ import {
   TableBody,
   TableCell,
 } from '@/components/ui/table';
-import { RiwayatPendidikanRow } from '@/types';
+import type { RiwayatPendidikanRow, DokumenRow } from '@/types';
 import { Pencil, Trash2, ChevronRight, Download, FilePlus } from 'lucide-react';
 import { BASE_URL } from '@/constant/BaseURL';
 import { cn } from '@/lib/utils';
@@ -44,26 +45,32 @@ export function DashboardRiwayatPendidikanTable({
   const [rows, setRows] = useState<RiwayatPendidikanRow[]>(data);
   useEffect(() => setRows(data), [data]);
 
-  // === download dokumen (pakai fetch + credentials) ===
-  const handleDownload = useCallback(async (url: string, filename: string) => {
-    try {
-      const res = await fetch(url, { credentials: 'include' });
-      if (!res.ok) throw new Error('Gagal mengunduh dokumen');
-      const blob = await res.blob();
-      const downloadUrl = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = filename || 'dokumen';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(downloadUrl);
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.message || 'Download gagal');
-    }
-  }, []);
+  const isAdmin = role === 'admin';
 
+  // Download dokumen by full URL
+  const handleDownload = useCallback(
+    async (url: string, filename: string) => {
+      try {
+        const res = await fetch(url, { credentials: 'include' });
+        if (!res.ok) throw new Error('Gagal mengunduh dokumen');
+        const blob = await res.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        a.download = filename || 'dokumen';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+      } catch (err: any) {
+        console.error(err);
+        toast.error(err.message || 'Download gagal');
+      }
+    },
+    []
+  );
+
+  // Delete entire riwayat pendidikan entry
   const handleDelete = async (id: string) => {
     try {
       const res = await fetch(`${BASE_URL}/pendidikan/${id}`, {
@@ -74,7 +81,7 @@ export function DashboardRiwayatPendidikanTable({
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Gagal menghapus data');
       }
-      setRows(r => r.filter(x => x.id !== id));
+      setRows((r) => r.filter((x) => x.id !== id));
       toast.success('Data berhasil dihapus');
     } catch (e: any) {
       console.error(e);
@@ -82,29 +89,64 @@ export function DashboardRiwayatPendidikanTable({
     }
   };
 
+  // Delete a single document by documentId, scoped to a given row
+  const handleDeleteDocument = async (documentId: string, rowId: string) => {
+    try {
+      const res = await fetch(
+        `${BASE_URL}/pendidikan/dokumen/${documentId}`,
+        {
+          method: 'DELETE',
+          credentials: 'include',
+        }
+      );
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Gagal menghapus dokumen');
+      }
+      setRows((prev) =>
+        prev.map((row) =>
+          row.id === rowId
+            ? { ...row, dokumen: row.dokumen.filter((d) => d.id !== documentId) }
+            : row
+        )
+      );
+      toast.success('Dokumen berhasil dihapus');
+    } catch (e: any) {
+      console.error(e);
+      toast.error(e.message || 'Gagal menghapus dokumen');
+    }
+  };
+
   return (
     <Table className="table-auto border-collapse w-full">
       <TableHeader>
         <TableRow>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800" />
-          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Pendidikan</TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Nama Institusi</TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Tahun Lulus</TableHead>
-          {role === 'admin' && (
-            <TableHead className="border px-4 py-2 text-center bg-gray-100 text-gray-800">Aksi</TableHead>
-          )}
+          <TableHead className="border px-4 py-2 text-center bg-gray-100"> </TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">
+            Pendidikan
+          </TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">
+            Nama Institusi
+          </TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">
+            Tahun Lulus
+          </TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">
+            Aksi
+          </TableHead>
         </TableRow>
       </TableHeader>
       <TableBody>
-        {rows.map(row => (
+        {rows.map((row) => (
           <RiwayatRow
             key={row.id}
             row={row}
             onDelete={handleDelete}
             onDownload={handleDownload}
+            onDeleteDoc={handleDeleteDocument}
             userinfoId={userinfoId}
             userId={userId}
-            isAdmin={role === 'admin'}
+            isAdmin={isAdmin}
           />
         ))}
       </TableBody>
@@ -116,6 +158,7 @@ interface RiwayatRowProps {
   row: RiwayatPendidikanRow;
   onDelete: (id: string) => void;
   onDownload: (url: string, filename: string) => void;
+  onDeleteDoc: (documentId: string, rowId: string) => void;
   userinfoId: string;
   userId: string;
   isAdmin: boolean;
@@ -125,6 +168,7 @@ function RiwayatRow({
   row,
   onDelete,
   onDownload,
+  onDeleteDoc,
   userinfoId,
   userId,
   isAdmin,
@@ -136,7 +180,7 @@ function RiwayatRow({
       <TableRow className="hover:bg-gray-50">
         <TableCell className="border px-4 py-2 text-center">
           <button
-            onClick={() => setOpen(!open)}
+            onClick={() => setOpen((o) => !o)}
             className={cn(
               "w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-all",
               open && "bg-gray-100"
@@ -150,86 +194,128 @@ function RiwayatRow({
         </TableCell>
         <TableCell className="border px-4 py-2">{row.pendidikan}</TableCell>
         <TableCell className="border px-4 py-2">{row.namaInstitusi}</TableCell>
-        <TableCell className="border px-4 py-2 text-center">{row.tahunLulus}</TableCell>
-        {isAdmin && (
-          <TableCell className="border px-4 py-2 text-center space-x-2">
-            <div className="flex justify-center items-center space-x-2">
-              <Link
-                href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/dokumen/add?userId=${userId}`}
-              >
-                <Button size="icon" variant="ghost" title="Tambah Dokumen" >
-                  <FilePlus className="w-4 h-4 text-green-600" />
-                </Button>
-              </Link>
-              <Link
-                href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/edit?userId=${userId}`}
-              >
-                <Button size="icon" variant="ghost">
-                  <Pencil className="w-4 h-4" />
-                </Button>
-              </Link>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button size="icon" variant="ghost">
-                    <Trash2 className="w-4 h-4 text-red-600" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Hapus Riwayat Pendidikan?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Tindakan ini tidak bisa dibatalkan.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction
-                      className="bg-red-600 hover:bg-red-700 text-white"
-                      onClick={() => onDelete(row.id)}
-                    >
-                      Hapus
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </TableCell>
-        )}
+        <TableCell className="border px-4 py-2 text-center">
+          {row.tahunLulus}
+        </TableCell>
+        <TableCell className="border px-4 py-2 text-center space-x-2">
+          <Link
+            href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/dokumen/add?userId=${userId}`}
+          >
+            <Button size="icon" variant="ghost" title="Tambah Dokumen">
+              <FilePlus className="w-4 h-4 text-green-600" />
+            </Button>
+          </Link>
+          <Link
+            href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/edit?userId=${userId}`}
+          >
+            <Button size="icon" variant="ghost" title="Edit">
+              <Pencil className="w-4 h-4" />
+            </Button>
+          </Link>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button size="icon" variant="ghost" title="Hapus Riwayat">
+                <Trash2 className="w-4 h-4 text-red-600" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Hapus Riwayat Pendidikan?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tindakan ini tidak bisa dibatalkan.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Batal</AlertDialogCancel>
+                <AlertDialogAction
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={() => onDelete(row.id)}
+                >
+                  Hapus
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </TableCell>
       </TableRow>
 
       {open && (
         <TableRow>
-          <TableCell colSpan={isAdmin ? 5 : 4} className="p-0 border-0">
+          <TableCell colSpan={5} className="p-0 border-0">
             <Table className="w-full table-auto">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Dokumen</TableHead>
-                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Unduh</TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">
+                    Dokumen
+                  </TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">
+                    Aksi
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {row.dokumen.length ? (
-                  row.dokumen.map((d, i) => {
-                    const filename = d.namaDokumen?.trim() || 'dokumen';
+                  row.dokumen.map((d: DokumenRow, i: number) => {
+                    const filename = d.namaDokumen.trim() || 'dokumen';
+                    const downloadUrl = `${BASE_URL}/pendidikan/dokumen/${d.id}`;
                     return (
                       <TableRow key={i}>
-                        <TableCell className="border px-3 py-1">{filename}</TableCell>
-                        <TableCell className="border px-3 py-1 text-center">
+                        <TableCell className="border px-3 py-1">
+                          {filename}
+                        </TableCell>
+                        <TableCell className="border px-3 py-1 text-center space-x-2">
                           <Button
                             variant="ghost"
                             size="icon"
-                            onClick={() => onDownload(d.url, filename)}
+                            onClick={() => onDownload(downloadUrl, filename)}
                             title="Unduh dokumen"
                           >
                             <Download className="w-4 h-4 text-blue-500" />
                           </Button>
+                          {isAdmin && (
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  title="Hapus Dokumen"
+                                >
+                                  <Trash2 className="w-4 h-4 text-red-600" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>
+                                    Hapus Dokumen?
+                                  </AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Dokumen akan terhapus permanen.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    className="bg-red-600 hover:bg-red-700 text-white"
+                                    onClick={() =>
+                                      onDeleteDoc(d.id, row.id)
+                                    }
+                                  >
+                                    Hapus
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          )}
                         </TableCell>
                       </TableRow>
                     );
                   })
                 ) : (
                   <TableRow>
-                    <TableCell className="border px-3 py-2 text-gray-500" colSpan={2}>
+                    <TableCell
+                      className="border px-3 py-2 text-gray-500"
+                      colSpan={2}
+                    >
                       Tidak ada dokumen
                     </TableCell>
                   </TableRow>
