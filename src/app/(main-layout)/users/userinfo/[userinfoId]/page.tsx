@@ -21,6 +21,7 @@ import {
   PenempatanRow,
   RiwayatPendidikanRow,
   KepangkatanRow,
+  DokumenRow,
 } from '@/types';
 
 import { BASE_URL } from '@/constant/BaseURL';
@@ -245,52 +246,48 @@ export default function EditUserinfoPage() {
   useEffect(() => {
     if (!rawData?.userId) return;
     (async () => {
-      try {
-        const res = await fetch(
-          `${BASE_URL}/pendidikan/user/${rawData.userId}`,
-          { credentials: 'include' }
-        );
-        if (!res.ok) throw new Error('Gagal memuat riwayat pendidikan');
-        const json = await res.json();
-        const items: any[] = json.data || [];
+      const res = await fetch(
+        `${BASE_URL}/pendidikan/user/${rawData.userId}`,
+        { credentials: 'include' }
+      );
+      if (!res.ok) throw new Error('Gagal memuat riwayat pendidikan');
+      const json = await res.json();
+      const items: any[] = json.data || [];
 
-        const toPublicUrl = (p?: string) => {
-          if (!p) return undefined;
-          // ambil bagian setelah folder "public" dan ganti backslash → slash
-          const cleaned =
-            p.split('public\\')[1]?.replace(/\\/g, '/') ??
-            p.split('public/')[1];
-          return cleaned
-            ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
-            : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
-        };
+      // helper untuk ubah path file jadi public URL
+      const toPublicUrl = (p?: string) => {
+        if (!p) return undefined;
+        const cleaned = p
+          .split('public\\')[1]?.replace(/\\/g, '/')
+          ?? p.split('public/')[1];
+        return cleaned
+          ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
+          : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
+      };
 
-        const mapped: RiwayatPendidikanRow[] = items.map(it => {
-          const rel = it.DokumenRiwayatPendidikan;
-          const file = rel?.dokumen;
-          const docs = file
-            ? [{
-              id: rel.id,    // <-- tambahkan ini
-              namaDokumen: rel.namaDokumen || file.originalName || file.filename,
-              url: toPublicUrl(file.path)!,
-            }]
-            : [];
-
+      const mapped: RiwayatPendidikanRow[] = items.map((it) => {
+        // 1) Map setiap relasi DokumenRiwayatPendidikan (array)
+        const docs: DokumenRow[] = (it.DokumenRiwayatPendidikan || []).map((rel: any) => {
+          const file = rel.dokumen;
           return {
-            id: it.id,
-            userId: it.userId,
-            pendidikan: it.pendidikan,
-            namaInstitusi: it.namaInstitusi,
-            tahunLulus: String(it.tahunLulus),
-            dokumen: docs,
+            id: rel.id,  // ini documentId yang akan dipakai untuk delete/download
+            namaDokumen: rel.namaDokumen || file.originalName || file.filename,
+            url: toPublicUrl(file.path)!,
           };
         });
 
-        setDataRiwayatPendidikan(mapped);
-      } catch (e: any) {
-        console.error(e);
-        toast.error(e.message || 'Gagal memuat riwayat pendidikan');
-      }
+        // 2) Kembalikan barisnya lengkap dengan array dokumen
+        return {
+          id: it.id,
+          userId: it.userId,
+          pendidikan: it.pendidikan,
+          namaInstitusi: it.namaInstitusi,
+          tahunLulus: String(it.tahunLulus),
+          dokumen: docs,
+        };
+      });
+
+      setDataRiwayatPendidikan(mapped);
     })();
   }, [rawData?.userId]);
 
