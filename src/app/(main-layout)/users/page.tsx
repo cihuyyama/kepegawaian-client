@@ -6,7 +6,7 @@ import { dummyUsers } from "@/components/users/user-data";
 
 export default function UsersPage() {
   return (
-    <ContentLayout title="Users">
+    <ContentLayout title="Pegawai">
       <UserBreadcrumb />
       <UserTable />
     </ContentLayout>

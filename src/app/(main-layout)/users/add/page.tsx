@@ -57,12 +57,12 @@ export default function CreateUserPage() {
   };
 
   return (
-    <ContentLayout title="Tambah User">
+    <ContentLayout title="Tambah Pegawai">
       <UserBreadcrumb page="Tambah" />
       <div className="mt-6 max-w-xl center mx-auto">
         <Card>
           <CardHeader>
-            <CardTitle>Form Tambah User</CardTitle>
+            <CardTitle>Form Tambah Pegawai</CardTitle>
           </CardHeader>
           <CardContent>
             <UserForm onSubmit={handleCreate} loading={loading} />

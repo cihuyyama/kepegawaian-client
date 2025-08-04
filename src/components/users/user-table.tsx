@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import axios from "axios";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +51,7 @@ export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [query, setQuery] = useState<string>("");
 
   const fetchUsers = async () => {
     try {
@@ -58,6 +59,8 @@ export function UserTable() {
       const meRes = await axios.get(`${BASE_URL}/users/access-token`, { withCredentials: true });
       const meId = meRes.data?.data?.id as string;
       setCurrentUserId(meId);
+
+      // 2) ambil semua users + userinfos
       const [usersRes, userinfosRes] = await Promise.all([
         axios.get(`${BASE_URL}/users`, { withCredentials: true }),
         axios.get(`${BASE_URL}/userinfo`, { withCredentials: true }),
@@ -108,6 +111,16 @@ export function UserTable() {
     fetchUsers();
   }, []);
 
+  // Hitung daftar yang cocok dengan query
+  const filteredUsers = useMemo(() => {
+    const q = query.toLowerCase().trim();
+    if (!q) return users;
+    return users.filter((u) =>
+      u.name.toLowerCase().includes(q) ||
+      u.email.toLowerCase().includes(q)
+    );
+  }, [users, query]);
+
   if (loading) {
     return <p className="text-center">Loading data...</p>;
   }
@@ -119,9 +132,14 @@ export function UserTable() {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <CardTitle className="text-lg font-medium">Pegawai List</CardTitle>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:items-center">
-              <Input placeholder="Search users..." className="sm:w-[200px]" />
+              <Input
+                placeholder="Search users..."
+                className="sm:w-[200px]"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
               <Link href="/users/add">
-                <Button variant="success">Tambah User</Button>
+                <Button variant="success">Tambah Pegawai</Button>
               </Link>
             </div>
           </div>
@@ -136,15 +154,14 @@ export function UserTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.length === 0 ? (
+              {filteredUsers.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center">
                     Tidak ada data.
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => {
-                 // cek ini akun sendiri?
+                filteredUsers.map((user) => {
                   const isSelf = user.id === currentUserId;
                   return (
                     <TableRow key={user.id}>
@@ -167,19 +184,16 @@ export function UserTable() {
 
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
-                      
-                           <Button
+                            <Button
                               variant="ghost"
                               size="icon"
-                             disabled={isSelf}
-                             title={isSelf ? "Tidak bisa menghapus akun sendiri" : undefined}
+                              disabled={isSelf}
+                              title={isSelf ? "Tidak bisa menghapus akun sendiri" : undefined}
                               onClick={(e) => e.stopPropagation()}
                             >
                               <Trash2 size={16} />
                             </Button>
                           </AlertDialogTrigger>
-
-                         {/* konten dialog tetap ada, tapi trigger-nya sudah disabled untuk self */}
                           <AlertDialogContent onClick={(e) => e.stopPropagation()}>
                             <AlertDialogHeader>
                               <AlertDialogTitle>Yakin ingin menghapus?</AlertDialogTitle>
@@ -191,7 +205,7 @@ export function UserTable() {
                               <AlertDialogCancel>Batal</AlertDialogCancel>
                               <AlertDialogAction
                                 className="bg-red-600 hover:bg-red-700 text-white"
-                               disabled={isSelf}
+                                disabled={isSelf}
                                 onClick={() => !isSelf && handleDelete(user.id)}
                               >
                                 Hapus
