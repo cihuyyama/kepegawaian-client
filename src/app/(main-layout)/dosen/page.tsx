@@ -15,6 +15,7 @@ import { BASE_URL } from '@/constant/BaseURL';
 
 /* ================== MAPPER: API → Pegawai =================== */
 const mapToPegawai = (r: any): Pegawai => ({
+  id: r.userId,
   nip: r.NIP ?? '',
   nama: r.user?.username ?? '',
   gelarDepan: r.GelarDepan || undefined,
@@ -121,7 +122,11 @@ export default function DosenPage() {
           <DosenListToolbar query={query} onQueryChange={setQuery} />
         </CardHeader>
         <CardContent>
-          <DosenListTable data={filteredData} makeId={normalizeNip} />
+          <DosenListTable
+            data={filteredData}          // filtered data from useMemo
+            makeId={(nip) => nip}  // Anda bisa hapus atau biarkan saja
+          />
+
         </CardContent>
       </Card>
     </ContentLayout>

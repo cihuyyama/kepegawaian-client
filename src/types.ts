@@ -1,7 +1,7 @@
 import { UserDocument } from "./utils/documents";
 
 export interface Pegawai {
-  
+  id: string; // userId
   nip: string;
   nama: string;
   gelarDepan?: string;

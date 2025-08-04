@@ -872,6 +872,7 @@ export const typeMapRawKey = (t: DocumentType) => {
 };
 
 const mapToPegawai = (r: any): Pegawai => ({
+  id: r.id,
   nip: r.NIP ?? '',
   nama: r.user?.username ?? '',
   gelarDepan: r.GelarDepan || undefined,

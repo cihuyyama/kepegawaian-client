@@ -1,3 +1,4 @@
+// src/components/dosen/dosen-list-table.tsx
 'use client';
 
 import Image from 'next/image';
@@ -8,15 +9,15 @@ import type { Pegawai } from '@/types';
 import { useMemo, useState } from 'react';
 
 type SortKey = keyof Pick<
-  Pegawai,
+  Pegawai & { id: string },
   'nip' | 'nama' | 'jabatanFungsional' | 'emailUniversitas' | 'noHandphone'
 >;
 
 export function DosenListTable({
   data,
-  makeId = (nip: string) => nip, // default: pakai nip as-is
+  makeId = (nip: string) => nip, // still available if you need it
 }: {
-  data: Pegawai[];
+  data: (Pegawai & { id: string })[];
   makeId?: (nip: string) => string;
 }) {
   const [sortKey, setSortKey] = useState<SortKey>('nama');
@@ -74,7 +75,7 @@ export function DosenListTable({
               </tr>
             )}
             {paged.map((d) => (
-              <tr key={d.nip} className="border-b hover:bg-gray-50">
+              <tr key={d.id} className="border-b hover:bg-gray-50">
                 <td className="py-2 px-2">
                   <div className="w-10 h-14 relative rounded overflow-hidden border">
                     <img
@@ -96,7 +97,7 @@ export function DosenListTable({
                 <td className="py-2 px-2">{d.emailUniversitas}</td>
                 <td className="py-2 px-2">{d.noHandphone}</td>
                 <td className="py-2 px-2">
-                  <Link href={`/dosen/${encodeURIComponent(makeId(d.nip))}`}>
+                  <Link href={`/dosen/${encodeURIComponent(d.id)}`}>
                     <Button size="sm" variant="outline">
                       Lihat Detail
                     </Button>

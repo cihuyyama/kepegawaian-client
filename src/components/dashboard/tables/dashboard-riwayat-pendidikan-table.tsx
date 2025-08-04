@@ -27,7 +27,6 @@ import {
 import type { RiwayatPendidikanRow, DokumenRow } from '@/types';
 import { Pencil, Trash2, ChevronRight, Download, FilePlus } from 'lucide-react';
 import { BASE_URL } from '@/constant/BaseURL';
-import { cn } from '@/lib/utils';
 
 interface Props {
   data: RiwayatPendidikanRow[];
@@ -121,19 +120,15 @@ export function DashboardRiwayatPendidikanTable({
     <Table className="table-auto border-collapse w-full">
       <TableHeader>
         <TableRow>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100"> </TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100">
-            Pendidikan
-          </TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100">
-            Nama Institusi
-          </TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100">
-            Tahun Lulus
-          </TableHead>
-          <TableHead className="border px-4 py-2 text-center bg-gray-100">
-            Aksi
-          </TableHead>
+          {/* kolom expand always */}
+          <TableHead className="border px-4 py-2 text-center bg-gray-100" />
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">Pendidikan</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">Nama Institusi</TableHead>
+          <TableHead className="border px-4 py-2 text-center bg-gray-100">Tahun Lulus</TableHead>
+          {/* hanya tampilkan header Aksi jika admin */}
+          {isAdmin && (
+            <TableHead className="border px-4 py-2 text-center bg-gray-100">Aksi</TableHead>
+          )}
         </TableRow>
       </TableHeader>
       <TableBody>
@@ -178,79 +173,75 @@ function RiwayatRow({
   return (
     <>
       <TableRow className="hover:bg-gray-50">
+        {/* expand toggle */}
         <TableCell className="border px-4 py-2 text-center">
           <button
             onClick={() => setOpen((o) => !o)}
-            className={cn(
-              "w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-all",
-              open && "bg-gray-100"
-            )}
-            title={open ? "Sembunyikan detail" : "Lihat detail"}
+            className={`w-8 h-8 flex items-center justify-center border border-gray-300 rounded transition-transform ${open ? 'bg-gray-100 rotate-90' : ''}`}
+            title={open ? 'Sembunyikan detail' : 'Lihat detail'}
           >
-            <ChevronRight
-              className={cn("w-4 h-4 transition-transform", open && "rotate-90")}
-            />
+            <ChevronRight className="w-4 h-4" />
           </button>
         </TableCell>
+
         <TableCell className="border px-4 py-2">{row.pendidikan}</TableCell>
         <TableCell className="border px-4 py-2">{row.namaInstitusi}</TableCell>
-        <TableCell className="border px-4 py-2 text-center">
-          {row.tahunLulus}
-        </TableCell>
-        <TableCell className="border px-4 py-2 text-center space-x-2">
-          <Link
-            href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/dokumen/add?userId=${userId}`}
-          >
-            <Button size="icon" variant="ghost" title="Tambah Dokumen">
-              <FilePlus className="w-4 h-4 text-green-600" />
-            </Button>
-          </Link>
-          <Link
-            href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/edit?userId=${userId}`}
-          >
-            <Button size="icon" variant="ghost" title="Edit">
-              <Pencil className="w-4 h-4" />
-            </Button>
-          </Link>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="icon" variant="ghost" title="Hapus Riwayat">
-                <Trash2 className="w-4 h-4 text-red-600" />
+        <TableCell className="border px-4 py-2 text-center">{row.tahunLulus}</TableCell>
+
+        {/* hanya tampilkan cell Aksi jika admin */}
+        {isAdmin && (
+          <TableCell className="border px-4 py-2 text-center space-x-2">
+            <Link
+              href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/dokumen/add?userId=${userId}`}
+            >
+              <Button size="icon" variant="ghost" title="Tambah Dokumen">
+                <FilePlus className="w-4 h-4 text-green-600" />
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Hapus Riwayat Pendidikan?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Tindakan ini tidak bisa dibatalkan.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Batal</AlertDialogCancel>
-                <AlertDialogAction
-                  className="bg-red-600 hover:bg-red-700 text-white"
-                  onClick={() => onDelete(row.id)}
-                >
-                  Hapus
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </TableCell>
+            </Link>
+            <Link
+              href={`/users/userinfo/${userinfoId}/riwayatpendidikan/${row.id}/edit?userId=${userId}`}
+            >
+              <Button size="icon" variant="ghost" title="Edit">
+                <Pencil className="w-4 h-4" />
+              </Button>
+            </Link>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button size="icon" variant="ghost" title="Hapus Riwayat">
+                  <Trash2 className="w-4 h-4 text-red-600" />
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Hapus Riwayat Pendidikan?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    Tindakan ini tidak bisa dibatalkan.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Batal</AlertDialogCancel>
+                  <AlertDialogAction
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                    onClick={() => onDelete(row.id)}
+                  >
+                    Hapus
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </TableCell>
+        )}
       </TableRow>
 
       {open && (
         <TableRow>
-          <TableCell colSpan={5} className="p-0 border-0">
+          {/* colSpan dinamis: 5 jika admin, 4 jika bukan */}
+          <TableCell colSpan={isAdmin ? 5 : 4} className="p-0 border-0">
             <Table className="w-full table-auto">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">
-                    Dokumen
-                  </TableHead>
-                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">
-                    Aksi
-                  </TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Dokumen</TableHead>
+                  <TableHead className="border px-3 py-1 bg-gray-50 text-center">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -260,9 +251,7 @@ function RiwayatRow({
                     const downloadUrl = `${BASE_URL}/pendidikan/dokumen/${d.id}`;
                     return (
                       <TableRow key={i}>
-                        <TableCell className="border px-3 py-1">
-                          {filename}
-                        </TableCell>
+                        <TableCell className="border px-3 py-1">{filename}</TableCell>
                         <TableCell className="border px-3 py-1 text-center space-x-2">
                           <Button
                             variant="ghost"
@@ -285,9 +274,7 @@ function RiwayatRow({
                               </AlertDialogTrigger>
                               <AlertDialogContent>
                                 <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Hapus Dokumen?
-                                  </AlertDialogTitle>
+                                  <AlertDialogTitle>Hapus Dokumen?</AlertDialogTitle>
                                   <AlertDialogDescription>
                                     Dokumen akan terhapus permanen.
                                   </AlertDialogDescription>
@@ -296,9 +283,7 @@ function RiwayatRow({
                                   <AlertDialogCancel>Batal</AlertDialogCancel>
                                   <AlertDialogAction
                                     className="bg-red-600 hover:bg-red-700 text-white"
-                                    onClick={() =>
-                                      onDeleteDoc(d.id, row.id)
-                                    }
+                                    onClick={() => onDeleteDoc(d.id, row.id)}
                                   >
                                     Hapus
                                   </AlertDialogAction>
@@ -312,10 +297,7 @@ function RiwayatRow({
                   })
                 ) : (
                   <TableRow>
-                    <TableCell
-                      className="border px-3 py-2 text-gray-500"
-                      colSpan={2}
-                    >
+                    <TableCell className="border px-3 py-2 text-gray-500" colSpan={2}>
                       Tidak ada dokumen
                     </TableCell>
                   </TableRow>

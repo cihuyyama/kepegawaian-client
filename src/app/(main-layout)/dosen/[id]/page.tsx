@@ -23,6 +23,7 @@ import { buildDoc } from '@/utils/documents';
 import { BASE_URL } from '@/constant/BaseURL';
 
 const mapToPegawai = (r: any): Pegawai => ({
+  id: r.userId,
   nip: r.NIP ?? '',
   nama: r.user?.username ?? '',
   gelarDepan: r.GelarDepan || undefined,
@@ -82,21 +83,25 @@ export default function DosenDetailPage() {
   useEffect(() => {
     (async () => {
       try {
-        const [roleRes, listRes] = await Promise.all([
-          fetch(`${BASE_URL}/users/access-token`, { credentials: 'include' }),
-          fetch(`${BASE_URL}/userinfo`, { credentials: 'include' }),
-        ]);
-
+        // 1. load role
+        const roleRes = await fetch(`${BASE_URL}/users/access-token`, { credentials: 'include' });
         const roleJson = await roleRes.json();
         setRole(roleJson.data?.role ?? '');
 
+        const userId = decodeURIComponent(id);
+
+        // 2a. kalau backend support single‐fetch:
+        // const detailRes = await fetch(`${BASE_URL}/userinfo/${userId}`, { credentials: 'include' });
+        // const detailJson = await detailRes.json();
+        // const foundRaw = detailJson.data;
+
+        // 2b. kalau belum, fetch list dan filter:
+        const listRes = await fetch(`${BASE_URL}/userinfo`, { credentials: 'include' });
         const listJson = await listRes.json();
         const arr = listJson.data || [];
-        const foundRaw = arr.find(
-          (r: any) => normalizeNip(r.NIP ?? '') === nipNormalized
-        );
+        const foundRaw = arr.find((r: any) => r.userId === userId) ?? null;
 
-        setRawData(foundRaw ?? null);
+        setRawData(foundRaw);
         setPegawai(foundRaw ? mapToPegawai(foundRaw) : null);
       } catch (e) {
         console.error(e);
@@ -106,7 +111,8 @@ export default function DosenDetailPage() {
         setLoading(false);
       }
     })();
-  }, [nipNormalized]);
+  }, [id]);
+
 
   if (loading) {
     return (
@@ -130,7 +136,7 @@ export default function DosenDetailPage() {
 
       <div className="mt-6 w-full space-y-6">
         <DosenDetail
-          userId={rawData.userId} 
+          userId={rawData.userId}
           pegawai={pegawai}
           keluarga={keluarga}
           pendidikan={pendidikan}

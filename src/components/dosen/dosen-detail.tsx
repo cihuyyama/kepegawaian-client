@@ -16,6 +16,7 @@ import type {
   JabatanStrukturalRow,
   PenempatanRow,
   KendaraanRow,
+  DokumenRow,
 } from '@/types';
 import { DosenProfileCard } from './dosen-profile-card';
 import { BASE_URL } from '@/constant/BaseURL';
@@ -158,20 +159,27 @@ export function DosenDetail({
         const json = await res.json();
         const items: any[] = json.data || [];
 
-        const mapped: RiwayatPendidikanRow[] = items.map(it => {
-          const rel = it.DokumenRiwayatPendidikan; // gunakan relasi ini
-          const docs = rel
-            ? [{
-              namaDokumen:
-                rel.namaDokumen ||
-                rel.dokumen?.originalName ||
-                rel.dokumen?.filename ||
-                'Dokumen',
-              // pakai id DokumenRiwayatPendidikan untuk endpoint download
-              url: `${BASE_URL}/pendidikan/dokumen/${rel.id}`,
-            }]
-            : [];
+        // helper untuk ubah path file jadi public URL
+        const toPublicUrl = (p?: string) => {
+          if (!p) return undefined;
+          const cleaned = p
+            .split('public\\')[1]?.replace(/\\/g, '/')
+            ?? p.split('public/')[1];
+          return cleaned
+            ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
+            : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
+        };
 
+        const mapped: RiwayatPendidikanRow[] = items.map((it) => {
+          // 1) Map setiap relasi DokumenRiwayatPendidikan (array)
+          const docs: DokumenRow[] = (it.DokumenRiwayatPendidikan || []).map((rel: any) => {
+            const file = rel.dokumen;
+            return {
+              id: rel.id,  // ini documentId yang akan dipakai untuk delete/download
+              namaDokumen: rel.namaDokumen || file.originalName || file.filename,
+              url: toPublicUrl(file.path)!,
+            };
+          });
           return {
             id: it.id,
             userId: it.userId,
