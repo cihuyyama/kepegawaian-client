@@ -3,7 +3,6 @@ import { BASE_URL } from '@/constant/BaseURL';
 
 export type DocumentType =
   | 'KTP'
-  | 'DocNBM'
   | 'DocNIDN'
   | 'SertifikasiDosen'
   | 'Passport'

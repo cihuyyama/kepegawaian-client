@@ -1,3 +1,4 @@
+// src/app/(main-layout)/dosen/page.tsx
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -25,7 +26,6 @@ const mapToPegawai = (r: any): Pegawai => ({
   tanggalLahir: r.TanggalLahir ?? '',
   alamat: r.Alamat ?? '',
   noHandphone: r.Phone ?? '',
-  nbm: r.NBM || undefined,
   nidn: r.NIDN || undefined,
   nidk: r.NIDK || undefined,
   nuptk: r.NUPTK || undefined,
@@ -41,18 +41,15 @@ const mapToPegawai = (r: any): Pegawai => ({
   jabatanFungsional: r.JabatanFungsional || undefined,
 
   dokKtp: buildDoc(r.userId, 'KTP', r.KTP),
-  dokNbm: buildDoc(r.userId, 'DocNBM', r.DocNBM),
   dokPassport: buildDoc(r.userId, 'Passport', r.Passport),
   dokBpjsKesehatan: buildDoc(r.userId, 'BPJSKesehatan', r.BPJSKesehatan),
   dokBpjsTenagakerja: buildDoc(r.userId, 'BPJSKetenagakerjaan', r.BPJSKetenagakerjaan),
   dokSertifikasiDosen: buildDoc(r.userId, 'SertifikasiDosen', r.SertifikasiDosen),
   dokNidn: buildDoc(r.userId, 'DocNIDN', r.DocNIDN),
 
-   imgUrl: r.user.imgUrl
+  imgUrl: r.user.imgUrl
 });
-/* ============================================================ */
 
-// normalisasi nip agar URL tidak bermasalah karena spasi
 const normalizeNip = (nip: string) => nip.replace(/\s+/g, '');
 
 export default function DosenPage() {
@@ -64,15 +61,32 @@ export default function DosenPage() {
   useEffect(() => {
     (async () => {
       try {
-        // Ambil role
+        // 1. ambil user + role + unit yang dipimpin
         const roleRes = await fetch(`${BASE_URL}/users/access-token`, { credentials: 'include' });
         const roleJson = await roleRes.json();
-        setRole(roleJson.data?.role ?? null);
+        const userData = roleJson.data;
+        setRole(userData.role);
 
-        // Ambil list userinfo
+        // jika kaprodi, ambil daftar anggota prodi dari token
+        const anggotaIds: string[] =
+          userData.role === 'kaprodi'
+            ? (userData.KepalaUnitKerja?.Anggota || []).map((a: any) => a.id)
+            : [];
+
+        // 2. ambil semua userinfo
         const res = await fetch(`${BASE_URL}/userinfo`, { credentials: 'include' });
         const json = await res.json();
-        const mapped: Pegawai[] = (json.data || []).map(mapToPegawai);
+
+        // 3. filter hanya role 'dosen'
+        let infos = (json.data || []).filter((r: any) => r.user.role === 'dosen');
+
+        // 4. jika kaprodi, filter lagi hanya yang tergabung di prodi
+        if (userData.role === 'kaprodi') {
+          infos = infos.filter((r: any) => anggotaIds.includes(r.userId));
+        }
+
+        // 5. map ke Pegawai dan simpan di state
+        const mapped: Pegawai[] = infos.map(mapToPegawai);
         setData(mapped);
       } catch (e) {
         console.error(e);

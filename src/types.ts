@@ -13,7 +13,6 @@ export interface Pegawai {
   tanggalLahir: string;
   alamat: string;
   noHandphone: string;
-  nbm?: string;
   nidn?: string;
   nidk?: string;
   nuptk?: string;
@@ -30,7 +29,6 @@ export interface Pegawai {
 
   // Dokumen-dokumen
   dokKtp?: UserDocument | null;
-  dokNbm?: UserDocument | null;
   dokPassport?: UserDocument | null;
   dokBpjsKesehatan?: UserDocument | null;
   dokBpjsTenagakerja?: UserDocument | null;

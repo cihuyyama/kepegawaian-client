@@ -24,7 +24,7 @@ export function UserBreadcrumb({ page }: UserBreadcrumbProps) {
         <BreadcrumbSeparator />
         <BreadcrumbItem>
           <BreadcrumbLink asChild>
-            <Link href="/users">Users</Link>
+            <Link href="/users">Pegawai</Link>
           </BreadcrumbLink>
         </BreadcrumbItem>
         {page && (

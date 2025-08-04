@@ -11,7 +11,6 @@ interface UploadDokumenProps {
   userId: string;
   documentType:
   | 'KTP'
-  | 'DocNBM'
   | 'DocNIDN'
   | 'SertifikasiDosen'
   | 'Passport'

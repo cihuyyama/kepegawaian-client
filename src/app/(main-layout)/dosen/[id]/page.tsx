@@ -34,7 +34,6 @@ const mapToPegawai = (r: any): Pegawai => ({
   tanggalLahir: r.TanggalLahir ?? '',
   alamat: r.Alamat ?? '',
   noHandphone: r.Phone ?? '',
-  nbm: r.NBM || undefined,
   nidn: r.NIDN || undefined,
   nidk: r.NIDK || undefined,
   nuptk: r.NUPTK || undefined,
@@ -50,7 +49,6 @@ const mapToPegawai = (r: any): Pegawai => ({
   jabatanFungsional: r.JabatanFungsional || undefined,
 
   dokKtp: buildDoc(r.userId, 'KTP', r.KTP),
-  dokNbm: buildDoc(r.userId, 'DocNBM', r.DocNBM),
   dokPassport: buildDoc(r.userId, 'Passport', r.Passport),
   dokBpjsKesehatan: buildDoc(r.userId, 'BPJSKesehatan', r.BPJSKesehatan),
   dokBpjsTenagakerja: buildDoc(r.userId, 'BPJSKetenagakerjaan', r.BPJSKetenagakerjaan),

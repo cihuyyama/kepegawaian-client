@@ -86,7 +86,6 @@ export default function DashboardPage() {
             : '-',
           alamat: info.Alamat ?? '-',
           noHandphone: info.Phone ?? '-',
-          nbm: info.NBM ?? '-',
           nidn: info.NIDN ?? '-',
           nidk: info.NIDK ?? '-',
           nuptk: info.NUPTK ?? '-',
@@ -103,7 +102,6 @@ export default function DashboardPage() {
 
           // Dokumen pakai builder
           dokKtp: buildDoc(uid, 'KTP', info.KTP),
-          dokNbm: buildDoc(uid, 'DocNBM', info.DocNBM),
           dokPassport: buildDoc(uid, 'Passport', info.Passport),
           dokBpjsKesehatan: buildDoc(uid, 'BPJSKesehatan', info.BPJSKesehatan),
           dokBpjsTenagakerja: buildDoc(uid, 'BPJSKetenagakerjaan', info.BPJSKetenagakerjaan),

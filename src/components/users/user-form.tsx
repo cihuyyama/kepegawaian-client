@@ -77,8 +77,7 @@ export function UserForm({
       form.name.trim() !== "" &&
       form.email.trim() !== "" &&
       form.password.trim() !== "" &&
-      form.role.trim() !== "" &&
-      form.prodi.trim() !== ""
+      form.role.trim() !== ""
     );
   }, [form]);
 

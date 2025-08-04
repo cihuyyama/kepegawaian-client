@@ -564,7 +564,6 @@ function EditableProfileCard({
     { label: 'Tanggal Lahir', field: 'TanggalLahir', type: 'date' },
     { label: 'Alamat', field: 'Alamat' },
     { label: 'No. Handphone', field: 'Phone' },
-    { label: 'NBM', field: 'NBM' },
     { label: 'NIDN', field: 'NIDN' },
     { label: 'NIDK', field: 'NIDK' },
     { label: 'NUPTK', field: 'NUPTK' },
@@ -580,7 +579,6 @@ function EditableProfileCard({
     { label: 'Jabatan Fungsional', field: 'JabatanFungsional' },
 
     { label: 'Dok. KTP', docType: 'KTP', value: pegawai.dokKtp ?? null },
-    { label: 'Dok. NBM', docType: 'DocNBM', value: pegawai.dokNbm ?? null },
     { label: 'Dok. Passport', docType: 'Passport', value: pegawai.dokPassport ?? null },
     { label: 'Dok. BPJS Kesehatan', docType: 'BPJSKesehatan', value: pegawai.dokBpjsKesehatan ?? null },
     { label: 'Dok. BPJS Tenagakerja', docType: 'BPJSKetenagakerjaan', value: pegawai.dokBpjsTenagakerja ?? null },
@@ -862,8 +860,6 @@ export const typeMapRawKey = (t: DocumentType) => {
   switch (t) {
     case 'KTP':
       return 'KTP';
-    case 'DocNBM':
-      return 'DocNBM';
     case 'DocNIDN':
       return 'DocNIDN';
     case 'SertifikasiDosen':
@@ -889,7 +885,6 @@ const mapToPegawai = (r: any): Pegawai => ({
   tanggalLahir: r.TanggalLahir ?? '',
   alamat: r.Alamat ?? '',
   noHandphone: r.Phone ?? '',
-  nbm: r.NBM || undefined,
   nidn: r.NIDN || undefined,
   nidk: r.NIDK || undefined,
   nuptk: r.NUPTK || undefined,
@@ -905,7 +900,6 @@ const mapToPegawai = (r: any): Pegawai => ({
   jabatanFungsional: r.JabatanFungsional || undefined,
 
   dokKtp: buildDoc(r.userId, 'KTP', r.KTP),
-  dokNbm: buildDoc(r.userId, 'DocNBM', r.DocNBM),
   dokPassport: buildDoc(r.userId, 'Passport', r.Passport),
   dokBpjsKesehatan: buildDoc(r.userId, 'BPJSKesehatan', r.BPJSKesehatan),
   dokBpjsTenagakerja: buildDoc(r.userId, 'BPJSKetenagakerjaan', r.BPJSKetenagakerjaan),
@@ -933,8 +927,6 @@ export const mapFieldToPegawai = (field: string, value: string): Partial<Pegawai
       return { alamat: value };
     case 'Phone':
       return { noHandphone: value };
-    case 'NBM':
-      return { nbm: value };
     case 'NIDN':
       return { nidn: value };
     case 'NIDK':
@@ -971,8 +963,7 @@ export const mapDocToPegawai = (
   switch (t) {
     case 'KTP':
       return { dokKtp: doc };
-    case 'DocNBM':
-      return { dokNbm: doc };
+   
     case 'DocNIDN':
       return { dokNidn: doc };
     case 'SertifikasiDosen':

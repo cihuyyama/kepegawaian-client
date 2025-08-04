@@ -50,9 +50,14 @@ type User = {
 export function UserTable() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
+      // 1) ambil data user yang login
+      const meRes = await axios.get(`${BASE_URL}/users/access-token`, { withCredentials: true });
+      const meId = meRes.data?.data?.id as string;
+      setCurrentUserId(meId);
       const [usersRes, userinfosRes] = await Promise.all([
         axios.get(`${BASE_URL}/users`, { withCredentials: true }),
         axios.get(`${BASE_URL}/userinfo`, { withCredentials: true }),
@@ -112,7 +117,7 @@ export function UserTable() {
       <Card>
         <CardHeader>
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <CardTitle className="text-lg font-medium">User List</CardTitle>
+            <CardTitle className="text-lg font-medium">Pegawai List</CardTitle>
             <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto sm:items-center">
               <Input placeholder="Search users..." className="sm:w-[200px]" />
               <Link href="/users/add">
@@ -138,56 +143,66 @@ export function UserTable() {
                   </TableCell>
                 </TableRow>
               ) : (
-                users.map((user) => (
-                  <TableRow key={user.id}>
-                    <TableCell>{user.name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell className="text-right space-x-2">
-                      <Link href={`/users/edit/${user.id}`}>
-                        <Button variant="outline" size="sm">Edit</Button>
-                      </Link>
+                users.map((user) => {
+                 // cek ini akun sendiri?
+                  const isSelf = user.id === currentUserId;
+                  return (
+                    <TableRow key={user.id}>
+                      <TableCell>{user.name}</TableCell>
+                      <TableCell>{user.email}</TableCell>
+                      <TableCell className="text-right space-x-2">
+                        <Link href={`/users/edit/${user.id}`}>
+                          <Button variant="outline" size="sm">Edit</Button>
+                        </Link>
 
-                      <Link href={`/users/userinfo/${user.userinfoId ?? ""}`}>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={!user.userinfoId}
-                        >
-                          Data
-                        </Button>
-                      </Link>
-
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
+                        <Link href={`/users/userinfo/${user.userinfoId ?? ""}`}>
                           <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={(e) => e.stopPropagation()}
+                            variant="outline"
+                            size="sm"
+                            disabled={!user.userinfoId}
                           >
-                            <Trash2 size={16} />
+                            Data
                           </Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Yakin ingin menghapus?</AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tindakan ini tidak bisa dibatalkan. Data user akan hilang secara permanen.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction
-                              className="bg-red-600 hover:bg-red-700 text-white"
-                              onClick={() => handleDelete(user.id)}
+                        </Link>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                      
+                           <Button
+                              variant="ghost"
+                              size="icon"
+                             disabled={isSelf}
+                             title={isSelf ? "Tidak bisa menghapus akun sendiri" : undefined}
+                              onClick={(e) => e.stopPropagation()}
                             >
-                              Hapus
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </TableCell>
-                  </TableRow>
-                ))
+                              <Trash2 size={16} />
+                            </Button>
+                          </AlertDialogTrigger>
+
+                         {/* konten dialog tetap ada, tapi trigger-nya sudah disabled untuk self */}
+                          <AlertDialogContent onClick={(e) => e.stopPropagation()}>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Yakin ingin menghapus?</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tindakan ini tidak bisa dibatalkan. Data user akan hilang secara permanen.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                className="bg-red-600 hover:bg-red-700 text-white"
+                               disabled={isSelf}
+                                onClick={() => !isSelf && handleDelete(user.id)}
+                              >
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })
               )}
             </TableBody>
           </Table>
