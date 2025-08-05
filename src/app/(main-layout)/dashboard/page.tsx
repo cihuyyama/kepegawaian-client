@@ -79,8 +79,8 @@ export default function DashboardPage() {
           gelarDepan: info.GelarDepan ?? '',
           gelarBelakang: info.GelarBelakang ?? '',
           jenisKelamin: info.JenisKelamin ?? '-',
-          agama: '-',                // tidak ada di API
-          golonganDarah: '-',        // tidak ada di API
+          agama: info.agama,                // tidak ada di API
+          golonganDarah: info.golonganDarah,        // tidak ada di API
           tempatLahir: info.TempatLahir ?? '-',
           tanggalLahir: info.TanggalLahir
             ? new Date(info.TanggalLahir).toISOString().split('T')[0]

@@ -32,6 +32,8 @@ export function DosenProfileCard({ pegawai }: { pegawai: Pegawai }) {
         `${pegawai.gelarDepan ?? ''} ${pegawai.nama ?? ''} ${pegawai.gelarBelakang ?? ''}`.trim()
       )
     },
+    { label: 'Gelar Depan', value: sanitizeValue(pegawai.gelarDepan) },
+    { label: 'Gelar Belakang', value: sanitizeValue(pegawai.gelarBelakang) },
     { label: 'Jenis Kelamin', value: sanitizeValue(pegawai.jenisKelamin) },
     { label: 'Agama', value: sanitizeValue(pegawai.agama) },
     { label: 'Golongan Darah', value: sanitizeValue(pegawai.golonganDarah) },

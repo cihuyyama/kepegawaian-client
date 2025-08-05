@@ -556,8 +556,8 @@ function EditableProfileCard({
     { label: 'Gelar Depan', field: 'GelarDepan' },
     { label: 'Gelar Belakang', field: 'GelarBelakang' },
     { label: 'Jenis Kelamin', field: 'JenisKelamin', type: 'select-gender' },
-    { label: 'Agama', value: pegawai.agama ?? '-' },
-    { label: 'Golongan Darah', value: pegawai.golonganDarah ?? '-' },
+    { label: 'Agama', field: 'agama' },
+    { label: 'Golongan Darah', field: 'golonganDarah' },
     { label: 'Tempat Lahir', field: 'TempatLahir' },
     { label: 'Tanggal Lahir', field: 'TanggalLahir', type: 'date' },
     { label: 'Alamat', field: 'Alamat' },
@@ -878,8 +878,8 @@ const mapToPegawai = (r: any): Pegawai => ({
   gelarDepan: r.GelarDepan || undefined,
   gelarBelakang: r.GelarBelakang || undefined,
   jenisKelamin: r.JenisKelamin ?? '',
-  agama: '',
-  golonganDarah: undefined,
+  agama: r.Agama ?? '',
+  golonganDarah: r.GolonganDarah ?? undefined,
   tempatLahir: r.TempatLahir ?? '',
   tanggalLahir: r.TanggalLahir ?? '',
   alamat: r.Alamat ?? '',
@@ -918,6 +918,10 @@ export const mapFieldToPegawai = (field: string, value: string): Partial<Pegawai
       return { gelarBelakang: value };
     case 'JenisKelamin':
       return { jenisKelamin: value };
+    case 'agama':
+      return { agama: value };
+    case 'golonganDarah':
+      return { golonganDarah: value };
     case 'TempatLahir':
       return { tempatLahir: value };
     case 'TanggalLahir':
