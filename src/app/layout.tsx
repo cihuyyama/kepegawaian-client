@@ -15,25 +15,17 @@ export const metadata: Metadata = {
         ? `https://${process.env.VERCEL_URL}`
         : `http://localhost:${process.env.PORT || 3000}`
   ),
-  title: "SIM Kepegawaian",
+  title: "SIM Kepegawaian - Universitas Lamappapoleonro",
+  
+  icons: {
+    shortcut: "/favicon.ico",
+    icon: "/favicon.ico",
+  },
   description:
-    "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
+    "Platform resmi Universitas Lamappapoleonro untuk pengelolaan data kepegawaian, absensi, dan cuti secara terintegrasi.",
   alternates: {
     canonical: "/"
   },
-  openGraph: {
-    url: "/",
-    title: "SIM Kepegawaian",
-    description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness.",
-    type: "website"
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "SIM Kepegawaian",
-    description:
-      "A stunning and functional retractable sidebar for Next.js built on top of shadcn/ui complete with desktop and mobile responsiveness."
-  }
 };
 
 export default function RootLayout({
@@ -44,10 +36,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={GeistSans.className}>
-          <StoreProvider>
-            {children}
-          </StoreProvider>
-          <Toaster richColors closeButton />
+        <StoreProvider>
+          {children}
+        </StoreProvider>
+        <Toaster richColors closeButton />
       </body>
     </html>
   );
