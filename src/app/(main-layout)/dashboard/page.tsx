@@ -53,7 +53,7 @@ export default function DashboardPage() {
     if (!p) return undefined;
     // handle backslash Windows path → URL
     const cleaned = p.split('public\\')[1]?.replace(/\\/g, '/')
-                ?? p.split('public/')[1];
+      ?? p.split('public/')[1];
     return cleaned
       ? `${process.env.NEXT_PUBLIC_DOMAIN}/${cleaned}`
       : `${process.env.NEXT_PUBLIC_DOMAIN}/${p}`;
@@ -73,6 +73,7 @@ export default function DashboardPage() {
         const uid: string = data?.id;
 
         const pegawaiData: Pegawai = {
+          id: data.id,
           nip: info.NIP ?? '-',
           nama: data.username ?? '-',
           gelarDepan: info.GelarDepan ?? '',
@@ -202,20 +203,40 @@ export default function DashboardPage() {
           setDataAnggotaKeluarga(mapped);
         }
 
-        // --- Pendidikan
+        // --- Pendidikan (dengan dokumen)
         if (pendRes.ok) {
           const j = await pendRes.json();
           const items: any[] = j.data || [];
-          const mapped: RiwayatPendidikanRow[] = items.map(it => ({
-            id: it.id,
-            userId: it.userId,
-            pendidikan: it.pendidikan,
-            namaInstitusi: it.namaInstitusi,
-            tahunLulus: String(it.tahunLulus),
-            dokumen: [], // backend belum kembalikan list dokumen pendidikan
-          }));
+
+          const mapped: RiwayatPendidikanRow[] = items.map((it) => {
+            // map setiap DokumenRiwayatPendidikan (array)
+            const docs = (it.DokumenRiwayatPendidikan ?? []).map((rel: any) => {
+              const file = rel.dokumen;
+              return {
+                id: rel.id,  // dipakai untuk delete/download
+                namaDokumen:
+                  rel.namaDokumen ||
+                  file.originalName ||
+                  file.filename ||
+                  'Dokumen',
+                url: toPublicUrl(file.path)!,  // ubah path → URL publik
+              };
+            });
+
+            return {
+              id: it.id,
+              userId: it.userId,
+              pendidikan: it.pendidikan,
+              namaInstitusi: it.namaInstitusi,
+              tahunLulus: String(it.tahunLulus),
+              dokumen: docs,
+            };
+          });
+
           setDataRiwayatPendidikan(mapped);
         }
+
+
 
         // --- Jabatan Fungsional
         if (jafRes.ok) {
