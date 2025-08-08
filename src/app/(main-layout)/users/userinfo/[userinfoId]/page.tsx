@@ -27,6 +27,7 @@ import {
 import { BASE_URL } from '@/constant/BaseURL';
 import { buildDoc, DocumentType, UserDocument } from '@/utils/documents';
 import { DashboardInfo } from '@/components/dashboard/dashboard-info';
+import Image from 'next/image';
 
 /* =======================================================================
    PAGE
@@ -800,7 +801,7 @@ function EditableProfileCard({
           {/* Foto */}
           <div className="w-full md:w-1/3 flex justify-center">
             <div className="w-[150px] h-[200px] rounded-md overflow-hidden border relative group">
-              <img
+              <Image
                 src={
                   pegawai?.imgUrl
                     ? pegawai.imgUrl.startsWith('http')
