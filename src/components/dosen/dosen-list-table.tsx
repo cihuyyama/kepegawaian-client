@@ -78,7 +78,7 @@ export function DosenListTable({
               <tr key={d.id} className="border-b hover:bg-gray-50">
                 <td className="py-2 px-2">
                   <div className="w-10 h-14 relative rounded overflow-hidden border">
-                    <img
+                    <Image
                       src={
                         d.imgUrl
                           ? `${process.env.NEXT_PUBLIC_DOMAIN}/${d.imgUrl}`

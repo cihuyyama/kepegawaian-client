@@ -61,7 +61,7 @@ export default function EditAnggotaKeluargaPage() {
         router.push(`/users/userinfo/${userinfoId}`);
       }
     })();
-  }, [keluargaId, userId]);
+  }, [keluargaId, router, userId, userinfoId]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;

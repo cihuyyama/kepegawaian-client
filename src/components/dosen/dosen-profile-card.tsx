@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
 import { Pegawai } from '@/types';
 import { UserDocument } from '@/utils/documents';
+import Image from 'next/image';
 
 interface InfoItem {
   label: string;
@@ -85,7 +86,7 @@ export function DosenProfileCard({ pegawai }: { pegawai: Pegawai }) {
           {/* Foto */}
           <div className="w-full md:w-1/3 flex justify-center">
             <div className="w-[150px] h-[200px] rounded-md overflow-hidden border relative group">
-              <img
+              <Image
                 src={
                   pegawai?.imgUrl
                     ? pegawai.imgUrl.startsWith('http')
@@ -95,6 +96,8 @@ export function DosenProfileCard({ pegawai }: { pegawai: Pegawai }) {
                 }
                 alt="Foto Dosen"
                 className="object-cover w-full h-full rounded-md border"
+                width={150}
+                height={200}
               />
             </div>
           </div>

@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { PanelsTopLeft } from "lucide-react";
 import Link from "next/link";
 import { BASE_URL } from "@/constant/BaseURL";
+import Image from "next/image";
 
 export function Sidebar() {
   const sidebar = useStore(useSidebar, (x) => x);
@@ -75,10 +76,12 @@ export function Sidebar() {
           asChild
         >
             <Link href="/dashboard" className="flex items-center gap-2">
-            <img 
-              src="/img/unipol.jpeg" 
-              alt="Logo SIM Kepegawaian" 
-              className="w-8 h-8 object-contain" 
+            <Image
+              src="/img/unipol.jpeg"
+              alt="Logo SIM Kepegawaian"
+              className="w-8 h-8 object-contain"
+              width={32}
+              height={32}
             />
             <h1
               className={cn(

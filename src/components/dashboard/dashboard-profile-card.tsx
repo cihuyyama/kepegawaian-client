@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Upload } from 'lucide-react';
 import { Pegawai } from '@/types';
 import { UserDocument } from '@/utils/documents';
+import Image from 'next/image';
 
 interface InfoItem {
   label: string;
@@ -85,7 +86,7 @@ export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
           {/* Foto */}
           <div className="w-full md:w-1/3 flex justify-center">
             <div className="w-[150px] h-[200px] rounded-md overflow-hidden border relative group">
-              <img
+              <Image
                 src={
                   pegawai?.imgUrl
                     ? `${process.env.NEXT_PUBLIC_DOMAIN}/${pegawai.imgUrl}`
@@ -93,7 +94,68 @@ export function DashboardProfileCard({ pegawai }: { pegawai: Pegawai }) {
                 }
                 alt="Foto Pegawai"
                 className="object-cover w-full h-full rounded-md border"
+                width={150}
+                height={200}
               />
+            </div>
+          </div>
+
+          {/* Info Pegawai */}
+          <div className="w-full md:w-2/3 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+            {/* Kolom kiri */}
+            <div className="space-y-4">
+              {leftItems.map(({ label, value }) => (
+                <div key={label}>
+                  <span className="text-gray-500 font-medium">{label}:</span>
+                  {label.startsWith('Dok.') ? (
+                    <p className="flex items-center space-x-1">
+                      <Upload className="w-4 h-4 text-gray-600" />
+                      {value && isUserDocument(value) ? (
+                        <a
+                          href={value.url}
+                          className="underline text-blue-600 hover:text-blue-800"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {fileNameFromUrl(value)}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">Belum ada dokumen</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p>{typeof value === 'string' ? value : String(value ?? '-')}</p>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Kolom kanan */}
+            <div className="space-y-4">
+              {rightItems.map(({ label, value }) => (
+                <div key={label}>
+                  <span className="text-gray-500 font-medium">{label}:</span>
+                  {label.startsWith('Dok.') ? (
+                    <p className="flex items-center space-x-1">
+                      <Upload className="w-4 h-4 text-gray-600" />
+                      {value && isUserDocument(value) ? (
+                        <a
+                          href={value.url}
+                          className="underline text-blue-600 hover:text-blue-800"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {fileNameFromUrl(value)}
+                        </a>
+                      ) : (
+                        <span className="text-gray-400">Belum ada dokumen</span>
+                      )}
+                    </p>
+                  ) : (
+                    <p>{typeof value === 'string' ? value : String(value ?? '-')}</p>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
 
